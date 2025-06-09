@@ -2,6 +2,11 @@ import os, sys
 os.environ['PATH']='/home/rxelmer/Documents/turso/appl/tex-basic/texlive/2023/bin/x86_64-linux:'+ os.environ['PATH'] #enabling use of latex
 os.environ['PTNOLATEX']='1' #enabling use of latex
 
+from anim_specs import AnimSpecs
+
+x = AnimSpecs(2)
+print(x.number)
+
 # Import packages
 import numpy as np
 import matplotlib.pyplot as plt
