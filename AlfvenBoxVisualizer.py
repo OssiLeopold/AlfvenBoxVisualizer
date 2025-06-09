@@ -3,12 +3,12 @@ os.environ['PATH']='/home/rxelmer/Documents/turso/appl/tex-basic/texlive/2023/bi
 os.environ['PTNOLATEX']='1' #enabling use of latex
 
 # Import packages
-import numpy as np
-import matplotlib.pyplot as plt
-import analysator as pt
-from enum import Enum
+import numpy as np                  # For math
+import matplotlib.pyplot as plt     # For plotting
+import analysator as pt             # For manipulating .vlsv files
+import multiprocessing as mp        # For multiprocessing 
 
-# Import user defined class
+# Import user defined classes
 from anim_specs import AnimSpecs
 
 # Packages for gif animation
