@@ -9,12 +9,8 @@ import multiprocessing as mp        # For multiprocessing
 from anim_specs import AnimSpecs
 import animator
 
-
-    
 # Set path where to find simulation bulk files
 bulkpath = "/home/rxelmer/Documents/turso/bulks/sim15/"
-
-
 
 # Enter number of bulkfiles, for example if your last bulkfile is named bulk.0000100.vlsv -> then enter 100, or the specific amount of frames you want to animate
 bulkfile_n = 10

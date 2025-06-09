@@ -3,9 +3,32 @@ import matplotlib.pyplot as plt     # For plotting
 import analysator as pt             # For manipulating .vlsv files
 # Packages for gif animation
 from matplotlib.animation import PillowWriter
-import matplotlib.animation as animation
+import matplotlib.animation as mpl_animation
 
-def animatorFunc(animation):
+
+
+def update_2D(frame):
+    fname = "bulk.{}.vlsv".format(str(frame).zfill(7))                                                         # Setting bulkpath to correspond with the current frame, i.e. bulkfile
+    vobj = pt.vlsvfile.VlsvReader(animation.bulkpath + fname)                                                            # Defining new vojbect with new bulkpath
+    time = vobj.read_parameter("time")
+    timelabel.set_text(f"{time:.1f}s")
+    for artist in p:                                                                                           # Removing old artist to make way for new frame
+        artist.remove()
+    if animation.component == "total":
+        y_component = np.array(vobj.read_variable(animation.variable,operator="y")[cellids.argsort()])/animation.unit
+        z_component = np.array(vobj.read_variable(animation.variable,operator="z")[cellids.argsort()])/animation.unit
+        total = np.sqrt(y_component**2 + z_component**2)
+        total_mesh = total.reshape(-1, x_length)
+        p[0] = ax.contourf(x_mesh, y_mesh, total_mesh, level_boundaries)
+    else:
+        value = np.array(vobj.read_variable(animation.variable,operator=animation.component)[cellids.argsort()])/animation.unit
+        value_mesh = value.reshape(-1, x_length)
+        p[0] = ax.contourf(x_mesh, y_mesh, value_mesh, level_boundaries)
+    return p
+
+def animatorFunc(def_animation):
+    global xmax, ymax, x_length, cellids, x_mesh, y_mesh, colors, level_boundaries, ax, p, animation, timelabel
+    animation = def_animation
     vobj = pt.vlsvfile.VlsvReader(animation.bulkpath + "bulk.0000000.vlsv")
     r_e = 6371e3 # Earth radius
     x_length = vobj.read_parameter("xcells_ini") # Used for formatting numpy mesh
@@ -40,8 +63,23 @@ def animatorFunc(animation):
             total = np.sqrt(y_component**2 + z_component**2)
             total_mesh = total.reshape(-1, x_length)
             p.append(ax.contourf(x_mesh, y_mesh, total_mesh, level_boundaries))
+        else:
+            value = np.array(vobj.read_variable(animation.variable,operator=animation.component)[cellids.argsort()])/animation.unit
+            value_mesh = value.reshape(-1, x_length)
+            p.append(ax.contourf(x_mesh, y_mesh, value_mesh, level_boundaries))
 
-        plt.savefig(f"ffff{animation.unit}.png")
+        cbar = plt.colorbar(p[0], cmap = "hot")
+        cbar.set_label("B [nT]" if animation.variable == "vg_b_vol" else "v [km/s]")
+        ax.set_xlabel("x [RE]")
+        ax.set_ylabel("y [RE]")
+        timelabel = ax.text(xmax, ymax*1.01, "")
+        anim = mpl_animation.FuncAnimation(fig, update_2D, frames = animation.bulkfile_n + 1, interval = 20)
+
+        writer = PillowWriter(fps=5)
+        anim.save(animation.name, writer = writer)
+        plt.close()
+        print("Done")
 
     else:
         print("gukki")
+
