@@ -3,8 +3,9 @@ import analysator as pt
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import animation
-os.environ['PATH']='/home/rxelmer/Documents/turso/appl/tex-basic/texlive/2023/bin/x86_64-linux:'+ os.environ['PATH'] #enabling use of latex
-os.environ['PTNOLATEX']='1' #enabling use of latex
+#enabling use of latex
+os.environ['PATH']='/home/rxelmer/Documents/turso/appl/tex-basic/texlive/2023/bin/x86_64-linux:'+ os.environ['PATH'] 
+os.environ['PTNOLATEX']='1'
 
 R_E = 6371e3 # Earth radius
 COLORS = ["blue", "orange"]
@@ -14,16 +15,18 @@ class AnimationEngine:
         self.object = object
 
         vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + "bulk.0000000.vlsv")
-        self.cellids = vlsvobj.read_variable("CellID")
+        self.cellids = vlsvobj.read_variable("CellID") # Used for sorting variables read by VlsvReader
         self.x_length = vlsvobj.read_parameter("xcells_ini") # Used for formatting numpy mesh
-        self.xmax = vlsvobj.read_parameter("xmax")/R_E # For now only used for placement of time legend
-        self.ymax = vlsvobj.read_parameter("ymax")/R_E # For now only used for placement of time legend
+        self.xmax = vlsvobj.read_parameter("xmax") / R_E
+        self.ymax = vlsvobj.read_parameter("ymax") / R_E
 
+        # Used in plotting
         x = np.array([vlsvobj.get_cell_coordinates(coord)[0] for coord in np.sort(self.cellids)]) / R_E
         y = np.array([vlsvobj.get_cell_coordinates(coord)[1] for coord in np.sort(self.cellids)]) / R_E
         self.x_mesh = x.reshape(-1,self.x_length)
         self.y_mesh = y.reshape(-1,self.x_length)
         
+        # Bring to class scope
         self.vlsvobj = vlsvobj
         self.cid_sort = self.cellids.argsort()
 

@@ -1,5 +1,6 @@
 import sys
 
+# Dictionary for translating instructions for VlsvReader
 translate = {"B_y":("vg_b_vol", "y", 1e-9),
                 "B_z":("vg_b_vol", "z", 1e-9),
                 "B_tot":("vg_b_vol", "total", 1e-9),
@@ -8,6 +9,7 @@ translate = {"B_y":("vg_b_vol", "y", 1e-9),
                 "v_tot":("proton/vg_v", "total", 1e3),
                 "rho":("proton/vg_rho", "pass", 1e6)}
 
+# Defining AnimationSpecs object and checking instructions
 class AnimationSpecs():
     def __init__(self, animation_type, variable, name, bulkpath, bulkfile_n):
         if animation_type not in ["3D", "2D"]:
