@@ -6,7 +6,7 @@ translate = {"B_y":("vg_b_vol", "y", 1e-9),
                 "v_y":("proton/vg_v", "y", 1e3),
                 "v_z":("proton/vg_v", "z", 1e3),
                 "v_tot":("proton/vg_v", "total", 1e3),
-                "rho":"proton/vg_rho"}
+                "rho":("proton/vg_rho", "pass", 1e6)}
 
 class AnimationSpecs():
     def __init__(self, animation_type, variable, name, bulkpath, bulkfile_n):

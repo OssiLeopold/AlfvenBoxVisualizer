@@ -44,9 +44,12 @@ class AnimationEngine:
         if object.component == "total":
             Min = 0
             Max = 1.5 * max(vlsvobj.read_variable(object.variable,operator="y")) / object.unit
+        elif object.variable == "proton/vg_rho":
+            Min = 0.99 * min(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
+            Max = 1.01 * max(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
         else:
-            Min = min(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
-            Max = max(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
+            Min = min(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit * 0.5
+            Max = max(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit * 1.5
 
         levels = 100                                                      
         level_boundaries = np.linspace(Min, Max, levels + 1)
@@ -72,6 +75,8 @@ class AnimationEngine:
             cbar.set_label(f"B_{object.component} [nT]")
         elif object.variable == "proton/vg_v":
             cbar.set_label(f"v_{object.component} [km/s]")
+        elif object.variable == "proton/vg_rho":
+            cbar.set_label(("rho [1e6/cell]"))
 
         ax.set_xlabel("x [RE]")
         ax.set_ylabel("y [RE]")
@@ -116,6 +121,9 @@ class AnimationEngine:
         if object.component == "total":
             Min = 0
             Max = 1.5 * max(vlsvobj.read_variable(object.variable,operator="y")) / object.unit
+        elif object.variable == "proton/vg_rho":
+            Min = 0.99 * min(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
+            Max = 1.01 * max(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
         else:
             Min = min(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
             Max = max(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
@@ -139,11 +147,13 @@ class AnimationEngine:
             ax.set_zlabel(f"B_{object.component} [nT]")
         elif object.variable == "proton/vg_v":
             ax.set_zlabel(f"v_{object.component} [km/s]")
+        elif object.variable == "proton/vg_rho":
+            ax.set_zlabel(("rho [1e6/cell]"))
         ax.set_zlim(Min, Max)
 
         ax.set_xlabel("x [RE]")
         ax.set_ylabel("y [RE]")
-        self.timelabel = ax.text(self.xmax, self.ymax*1.01, Max, "")
+        self.timelabel = ax.text(self.xmax, self.ymax*1.01, Max*1.01, "")
 
         anim = animation.FuncAnimation(fig, self.update_3D, frames = object.bulkfile_n + 1, interval = 20)
 
