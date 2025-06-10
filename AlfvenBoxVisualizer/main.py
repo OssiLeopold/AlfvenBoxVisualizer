@@ -17,8 +17,3 @@ for i, object in enumerate(animations):
 
 with mp.Pool(len(animations)) as process:
     process.map(AnimationEngine, animations)
-
-#if __name__ == "__main__":
-#    animations = [("2D", "B_tot","anim1.gif"),("2D", "v_y","anim2.gif")]
-#    forma
-#    main()
