@@ -150,6 +150,7 @@ class AnimationEngine:
         elif object.variable == "proton/vg_rho":
             ax.set_zlabel(("rho [1e6/cell]"))
         ax.set_zlim(Min, Max)
+        ax.set_ylim(0, self.ymax)
 
         ax.set_xlabel("x [RE]")
         ax.set_ylabel("y [RE]")

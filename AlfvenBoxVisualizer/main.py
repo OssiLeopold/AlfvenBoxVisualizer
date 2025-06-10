@@ -7,9 +7,9 @@ from animation_engine import AnimationEngine    # Class for doing actual animati
 bulkpath = "/home/rxelmer/Documents/turso/bulks/sim15/"
 
 # Enter number of frames to be animated, define as None for all files
-bulkfile_number = 10
+bulkfile_number = 200
 
-animations = [("2D", "rho","anim1.gif"),("3D", "rho","anim2.gif")]
+animations = [("2D", "rho","sim15_rho_2D.gif"),("3D", "rho","sim15_rho_3D.gif")]
 
 for i, object in enumerate(animations):
     animations[i] = AnimationSpecs(object[0], object[1], object[2], bulkpath, bulkfile_number)
