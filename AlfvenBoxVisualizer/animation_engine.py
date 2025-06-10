@@ -50,9 +50,13 @@ class AnimationEngine:
         elif object.variable == "proton/vg_rho":
             Min = 0.99 * min(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
             Max = 1.01 * max(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
+        elif object.component == "x":
+            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + "bulk.0000010.vlsv")
+            Min = min(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
+            Max = max(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit 
         else:
-            Min = min(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit * 0.5
-            Max = max(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit * 1.5
+            Min = min(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
+            Max = max(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit 
 
         levels = 100                                                      
         level_boundaries = np.linspace(Min, Max, levels + 1)
@@ -127,6 +131,10 @@ class AnimationEngine:
         elif object.variable == "proton/vg_rho":
             Min = 0.99 * min(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
             Max = 1.01 * max(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
+        elif object.component == "x":
+            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + "bulk.0000010.vlsv")
+            Min = min(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
+            Max = max(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit 
         else:
             Min = min(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
             Max = max(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit

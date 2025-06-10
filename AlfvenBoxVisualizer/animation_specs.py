@@ -3,7 +3,9 @@ import sys
 # Dictionary for translating instructions for VlsvReader
 translate = {"B_y":("vg_b_vol", "y", 1e-9),
                 "B_z":("vg_b_vol", "z", 1e-9),
+                "B_x":("vg_b_vol", "x", 1e-9),
                 "B_tot":("vg_b_vol", "total", 1e-9),
+                "v_x":("proton/vg_v", "x", 1e3),
                 "v_y":("proton/vg_v", "y", 1e3),
                 "v_z":("proton/vg_v", "z", 1e3),
                 "v_tot":("proton/vg_v", "total", 1e3),
@@ -16,7 +18,7 @@ class AnimationSpecs():
             print("animation_type defined incorrectly")
             sys.exit(1)
 
-        if variable not in ["B_y", "B_z", "B_tot", "v_y", "v_z", "v_tot", "rho"]:
+        if variable not in ["B_y", "B_z", "B_x", "B_tot", "v_y", "v_z", "v_x", "v_tot", "rho"]:
             print("variable defined incorrectly")
             sys.exit(1)
 
