@@ -4,10 +4,10 @@ from animation_specs import AnimationSpecs      # Class for animation object
 from animation_engine import AnimationEngine    # Class for doing actual animation
 
 # Set path to simulation bulkfiles
-bulkpath = "/home/rxelmer/Documents/turso/bulks/sim15/"
+bulkpath = "/home/rxelmer/Documents/turso/bulks_local/sim16/"
 
 # Enter number of frames to be animated, define as None for all files
-bulkfile_number = 10
+bulkfile_number = 200
 
 # Define what animations are to be produced
 # Has to be in the from of a tuple, e.g: ("<animation type>", "<variable_component>", "<dir/outputname.gif>")
@@ -18,7 +18,15 @@ animations = [("2D", "B_x", "sim15_plots/sim15_Bx_2D.gif"),("2D", "B_y", "sim15_
                 ("2D", "v_y", "sim15_plots/sim15_vy_2D.gif"),("2D", "v_z", "sim15_plots/sim15_vz_2D.gif"),
                 ("3D", "B_x", "sim15_plots/sim15_Bx_3D.gif"),("3D", "B_y", "sim15_plots/sim15_By_3D.gif"),
                 ("3D", "B_z", "sim15_plots/sim15_Bz_3D.gif"),("3D", "v_x", "sim15_plots/sim15_vx_3D.gif"),
-                ("3D", "v_y", "sim15_plots/sim15_vy_3D.gif"),("3D", "v_z", "sim15_plots/sim15_vz_3D.gif")]
+                ("3D", "v_y", "sim15_plots/sim15_vy_3D.gif"),("3D", "v_z", "sim15_plots/sim15_vz_3D.gif"),
+
+                ("2D", "B_tot", "sim15_plots/sim15_B_tot_2D.gif"),("2D", "v_tot", "sim15_plots/sim15_v_tot_2D.gif"),
+                ("3D", "B_tot", "sim15_plots/sim15_B_tot_3D.gif"),("3D", "v_tot", "sim15_plots/sim15_v_tot_3D.gif"),
+
+                ("2D", "dB_y/dx", "sim15_plots/sim15_dBy_dx_2D.gif"),("2D", "dB_z/dx", "sim15_plots/sim15_dBz_dx_2D.gif"),
+                ("3D", "dB_y/dx", "sim15_plots/sim15_dBy_dx_3D.gif"),("3D", "dB_z/dx", "sim15_plots/sim15_dBz_dx_3D.gif"),
+                ("2D", "J_y", "sim15_plots/sim15_Jy_2D.gif"),("2D", "J_z", "sim15_plots/sim15_Jz_2D.gif"),
+                ("3D", "J_y", "sim15_plots/sim15_Jy_3D.gif"),("3D", "J_z", "sim15_plots/sim15_Jz_3D.gif")]
 
 # Turn list into list of AnimationSpecs objects
 for i, object in enumerate(animations):
