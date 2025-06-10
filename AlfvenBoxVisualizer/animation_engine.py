@@ -47,18 +47,15 @@ class AnimationEngine:
         if object.component == "total":
             Min = 0
             Max = self.def_max()
-        elif object.variable == "proton/vg_rho":
-            Min = self.def_min()
-            Max = self.def_max()
-        elif object.component == "x":
-            Min = self.def_min()
-            Max = self.def_max()
         else:
             Min = self.def_min()
             Max = self.def_max()
 
-        levels = 100                                                      
-        level_boundaries = np.linspace(Min, Max, levels + 1)
+        levels = 100
+        if object.variable == "vg_b_vol" and object.component == "x":
+            level_boundaries = np.linspace(Min*0.9, Max*1.1, levels + 1)
+        else:
+            level_boundaries = np.linspace(Min, Max, levels + 1)
         self.level_boundaries = level_boundaries
 
         p = []
@@ -76,13 +73,16 @@ class AnimationEngine:
         self.p = p
         self.ax = ax
 
-        cbar = plt.colorbar(p[0], cmap = "hot")
+        cbar = plt.colorbar(p[0])
         if object.variable == "vg_b_vol":
             cbar.set_label(f"B_{object.component} [nT]")
+            ax.set_title(f"B_{object.component} [nT]")
         elif object.variable == "proton/vg_v":
             cbar.set_label(f"v_{object.component} [km/s]")
+            ax.set_title(f"v_{object.component} [km/s]")
         elif object.variable == "proton/vg_rho":
             cbar.set_label(("rho [1e6/cell]"))
+            ax.set_title(f"rho [1e6/cell]")
 
         ax.set_xlabel("x [RE]")
         ax.set_ylabel("y [RE]")
@@ -127,12 +127,6 @@ class AnimationEngine:
         if object.component == "total":
             Min = 0
             Max = self.def_max()
-        elif object.variable == "proton/vg_rho":
-            Min = self.def_min()
-            Max = self.def_max()
-        elif object.component == "x":
-            Min = self.def_min()
-            Max = self.def_max()
         else:
             Min = self.def_min()
             Max = self.def_max()
@@ -154,11 +148,19 @@ class AnimationEngine:
 
         if object.variable == "vg_b_vol":
             ax.set_zlabel(f"B_{object.component} [nT]")
+            ax.set_title(f"B_{object.component} [nT]")
         elif object.variable == "proton/vg_v":
             ax.set_zlabel(f"v_{object.component} [km/s]")
+            ax.set_title(f"v_{object.component} [km/s]")
         elif object.variable == "proton/vg_rho":
             ax.set_zlabel(("rho [1e6/cell]"))
-        ax.set_zlim(Min, Max)
+            ax.set_title(f"rho [1e6/cell]")
+
+        if object.variable == "vg_b_vol" and object.component == "x":
+            ax.set_zlim(Min*0.9, Max*1.1)
+        else:
+            ax.set_zlim(Min, Max)
+        
         ax.set_ylim(0, self.ymax)
 
         ax.set_xlabel("x [RE]")
