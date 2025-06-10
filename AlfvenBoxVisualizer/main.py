@@ -13,7 +13,12 @@ bulkfile_number = 10
 # Has to be in the from of a tuple, e.g: ("<animation type>", "<variable_component>", "<dir/outputname.gif>")
 # animation types: 2D, 3D
 # variable_component: B_y, B_z, B_tot, <same for v>, and rho (for proton density)
-animations = [("3D", "v_x","sim15_v_x_3D.gif"),("3D", "B_x","sim15_B_x_3D.gif")]
+animations = [("2D", "B_x", "sim15_plots/sim15_Bx_2D.gif"),("2D", "B_y", "sim15_plots/sim15_By_2D.gif"),
+                ("2D", "B_z", "sim15_plots/sim15_Bz_2D.gif"),("2D", "v_x", "sim15_plots/sim15_vx_2D.gif"),
+                ("2D", "v_y", "sim15_plots/sim15_vy_2D.gif"),("2D", "v_z", "sim15_plots/sim15_vz_2D.gif"),
+                ("3D", "B_x", "sim15_plots/sim15_Bx_3D.gif"),("3D", "B_y", "sim15_plots/sim15_By_3D.gif"),
+                ("3D", "B_z", "sim15_plots/sim15_Bz_3D.gif"),("3D", "v_x", "sim15_plots/sim15_vx_3D.gif"),
+                ("3D", "v_y", "sim15_plots/sim15_vy_3D.gif"),("3D", "v_z", "sim15_plots/sim15_vz_3D.gif")]
 
 # Turn list into list of AnimationSpecs objects
 for i, object in enumerate(animations):

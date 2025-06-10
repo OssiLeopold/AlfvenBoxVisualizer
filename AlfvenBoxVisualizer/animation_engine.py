@@ -46,17 +46,16 @@ class AnimationEngine:
 
         if object.component == "total":
             Min = 0
-            Max = 1.5 * max(vlsvobj.read_variable(object.variable,operator="y")) / object.unit
+            Max = self.def_max()
         elif object.variable == "proton/vg_rho":
-            Min = 0.99 * min(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
-            Max = 1.01 * max(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
+            Min = self.def_min()
+            Max = self.def_max()
         elif object.component == "x":
-            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + "bulk.0000010.vlsv")
-            Min = min(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
-            Max = max(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit 
+            Min = self.def_min()
+            Max = self.def_max()
         else:
-            Min = min(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
-            Max = max(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit 
+            Min = self.def_min()
+            Max = self.def_max()
 
         levels = 100                                                      
         level_boundaries = np.linspace(Min, Max, levels + 1)
@@ -127,17 +126,16 @@ class AnimationEngine:
 
         if object.component == "total":
             Min = 0
-            Max = 1.5 * max(vlsvobj.read_variable(object.variable,operator="y")) / object.unit
+            Max = self.def_max()
         elif object.variable == "proton/vg_rho":
-            Min = 0.99 * min(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
-            Max = 1.01 * max(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
+            Min = self.def_min()
+            Max = self.def_max()
         elif object.component == "x":
-            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + "bulk.0000010.vlsv")
-            Min = min(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
-            Max = max(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit 
+            Min = self.def_min()
+            Max = self.def_max()
         else:
-            Min = min(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
-            Max = max(vlsvobj.read_variable(object.variable, operator=object.component)) / object.unit
+            Min = self.def_min()
+            Max = self.def_max()
 
         p = []
         if object.component == "total":
@@ -194,3 +192,23 @@ class AnimationEngine:
             self.p[0] = self.ax.plot_surface(self.x_mesh, self.y_mesh, value_mesh, color = COLORS[0])
 
         return self.p
+    
+    def def_min(self):
+        values = []
+        for i in range(10):
+            object = self.object
+            fname = f"bulk.{str(i).zfill(7)}.vlsv"
+            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + fname)   
+            values.extend(
+                vlsvobj.read_variable(object.variable, operator="{}".format(object.component if object.component != "total" else "y"))/object.unit)
+        return min(values)
+    
+    def def_max(self):
+        values = []
+        for i in range(10):
+            object = self.object
+            fname = f"bulk.{str(i).zfill(7)}.vlsv"
+            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + fname)   
+            values.extend(
+                vlsvobj.read_variable(object.variable, operator="{}".format(object.component if object.component != "total" else "y"))/object.unit)
+        return max(values)
