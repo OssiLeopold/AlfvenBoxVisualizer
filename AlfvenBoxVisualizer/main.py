@@ -7,7 +7,7 @@ from animation_engine import AnimationEngine    # Class for doing actual animati
 bulkpath = "/home/rxelmer/Documents/turso/bulks/sim15/"
 
 # Enter number of frames to be animated, define as None for all files
-bulkfile_number = 200
+bulkfile_number = 10
 
 # Define what animations are to be produced
 # Has to be in the from of a tuple, e.g: ("<animation type>", "<variable_component>", "<dir/outputname.gif>")
