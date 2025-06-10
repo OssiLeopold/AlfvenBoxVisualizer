@@ -1,0 +1,5 @@
+AlfvenBoxVisualizer.code-workspace
+__pycache__
+old_versions/
+sim**
+test.py
