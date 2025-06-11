@@ -1,24 +1,24 @@
 import sys
 
 # Dictionary for translating instructions for VlsvReader
-translate = {"B_x":("vg_b_vol", "x", 1e-9),
-                "B_y":("vg_b_vol", "y", 1e-9),
-                "B_z":("vg_b_vol", "z", 1e-9),
-                "dB_y/dx":("vg_derivatives/vg_dperbyvoldx", "deriv", 1e-15),
-                "dB_z/dx":("vg_derivatives/vg_dperbzvoldx", "deriv", 1e-15),
-                "B_tot":("vg_b_vol", "total", 1e-9),
-                "J_y":("vg_j", "y", 1e-9),
-                "J_z":("vg_j", "z", 1e-9),
-                "v_x":("proton/vg_v", "x", 1e3),
-                "v_y":("proton/vg_v", "y", 1e3),
-                "v_z":("proton/vg_v", "z", 1e3),
-                "v_tot":("proton/vg_v", "total", 1e3),
-                "rho":("proton/vg_rho", "pass", 1e6)}
+translate = {"B_x":("vg_b_vol", "x", 1e-9, "nT"),
+                "B_y":("vg_b_vol", "y", 1e-9, "nT"),
+                "B_z":("vg_b_vol", "z", 1e-9, "nT"),
+                "dB_y/dx":("vg_derivatives/vg_dperbyvoldx", "pass", 1e-15, "fT"),
+                "dB_z/dx":("vg_derivatives/vg_dperbzvoldx", "pass", 1e-15, "fT"),
+                "B_tot":("vg_b_vol", "magnitude", 1e-9, "nT"),
+                "J_y":("vg_j", "y", 1e-9, "nA/m**2"),
+                "J_z":("vg_j", "z", 1e-9, "nA/m**2"),
+                "v_x":("proton/vg_v", "x", 1e3, "km/s"),
+                "v_y":("proton/vg_v", "y", 1e3, "km/s"),
+                "v_z":("proton/vg_v", "z", 1e3, "km/s"),
+                "v_tot":("proton/vg_v", "magnitude", 1e3, "km/s"),
+                "rho":("proton/vg_rho", "pass", 1e6, "n/cell")}
 
 # Defining AnimationSpecs object and checking instructions
 class AnimationSpecs():
     def __init__(self, animation_type, variable, name, bulkpath, bulkfile_n):
-        if animation_type not in ["3D", "2D"]:
+        if animation_type not in ["3D", "2D", "fourier"]:
             print("animation_type defined incorrectly")
             sys.exit(1)
 
@@ -31,9 +31,11 @@ class AnimationSpecs():
             sys.exit(1)
 
         self.animation_type = animation_type
+        self.variable_name = variable
         self.variable = translate[variable][0]
         self.component = translate[variable][1]
         self.unit = translate[variable][2]
+        self.unit_name = translate[variable][3]
         self.name = name
         self.bulkpath = bulkpath
         self.bulkfile_n = bulkfile_n

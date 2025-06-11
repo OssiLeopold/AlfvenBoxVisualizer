@@ -44,11 +44,7 @@ class AnimationEngine:
         fig = plt.figure()
         ax = fig.add_subplot()
 
-        if object.component == "total":
-            Min = 0
-            Max = self.def_min_max()
-        else:
-            Min, Max = self.def_min_max()
+        Min, Max = self.def_min_max()
 
         levels = 100
         if object.variable == "vg_b_vol" and object.component == "x":
@@ -58,43 +54,16 @@ class AnimationEngine:
         self.level_boundaries = level_boundaries
 
         p = []
-        if object.component == "total":
-            y = np.array(vlsvobj.read_variable(object.variable, operator="y")[cid_sort]) / object.unit
-            z = np.array(vlsvobj.read_variable(object.variable, operator="z")[cid_sort]) / object.unit
-            magnitude = np.sqrt(y**2 + z**2)
-            magnitude_mesh = magnitude.reshape(-1, self.x_length)
-            p.append(ax.contourf(self.x_mesh, self.y_mesh, magnitude_mesh, level_boundaries))
-        elif object.component == "deriv":
-            value = np.array(vlsvobj.read_variable(object.variable)[cid_sort]) / object.unit
-            value_mesh = value.reshape(-1, self.x_length)
-            p.append(ax.contourf(self.x_mesh, self.y_mesh, value_mesh, level_boundaries))
-        else:
-            value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cid_sort]) / object.unit
-            value_mesh = value.reshape(-1, self.x_length)
-            p.append(ax.contourf(self.x_mesh, self.y_mesh, value_mesh, level_boundaries))
+        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cid_sort]) / object.unit
+        value_mesh = value.reshape(-1, self.x_length)
+        p.append(ax.contourf(self.x_mesh, self.y_mesh, value_mesh, level_boundaries))
         
         self.p = p
         self.ax = ax
 
         cbar = plt.colorbar(p[0])
-        if object.variable == "vg_b_vol":
-            cbar.set_label(f"B_{object.component} [nT]")
-            ax.set_title(f"B_{object.component} [nT]")
-        elif object.variable == "proton/vg_v":
-            cbar.set_label(f"v_{object.component} [km/s]")
-            ax.set_title(f"v_{object.component} [km/s]")
-        elif object.variable == "proton/vg_rho":
-            cbar.set_label(("rho [1e6/cell]"))
-            ax.set_title(f"rho [1e6/cell]")
-        elif object.variable == "vg_j":
-            cbar.set_label(f"J_{object.component} [nA/m**2]")
-            ax.set_title(f"J_{object.component} [nA/m**2]")
-        elif object.variable == "vg_derivatives/vg_dperbyvoldx":
-            cbar.set_label("dB_y/dx [fT]")
-            ax.set_title("dB_y/dx [fT] (f=femto [e-15])")
-        elif object.variable == "vg_derivatives/vg_dperbzvoldx":
-            cbar.set_label("dB_z/dx [fT]")
-            ax.set_title("dB_z/dx [fT] (f=femto [e-15])")
+        cbar.set_label(f"{object.variable_name} [{object.unit_name}]")
+        ax.set_title(f"{object.variable_name} [{object.unit_name}]")
 
         ax.set_xlabel("x [RE]")
         ax.set_ylabel("y [RE]")
@@ -115,20 +84,9 @@ class AnimationEngine:
         time = vlsvobj.read_parameter("time")
         self.timelabel.set_text(f"{time:.1f}s")
         
-        if object.component == "total":
-            y = np.array(vlsvobj.read_variable(object.variable, operator="y")[self.cid_sort]) / object.unit
-            z = np.array(vlsvobj.read_variable(object.variable, operator="z")[self.cid_sort]) / object.unit
-            magnitude = np.sqrt(y**2 + z**2)
-            magnitude_mesh = magnitude.reshape(-1, self.x_length)
-            self.p[0] = self.ax.contourf(self.x_mesh, self.y_mesh, magnitude_mesh, self.level_boundaries)
-        elif object.component == "deriv":
-            value = np.array(vlsvobj.read_variable(object.variable)[self.cid_sort]) / object.unit
-            value_mesh = value.reshape(-1, self.x_length)
-            self.p[0] = self.ax.contourf(self.x_mesh, self.y_mesh, value_mesh, self.level_boundaries)
-        else:
-            value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[self.cid_sort]) / object.unit
-            value_mesh = value.reshape(-1, self.x_length)
-            self.p[0] = self.ax.contourf(self.x_mesh, self.y_mesh, value_mesh, self.level_boundaries)
+        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[self.cid_sort]) / object.unit
+        value_mesh = value.reshape(-1, self.x_length)
+        self.p[0] = self.ax.contourf(self.x_mesh, self.y_mesh, value_mesh, self.level_boundaries)
 
         return self.p
 
@@ -140,49 +98,18 @@ class AnimationEngine:
         fig = plt.figure()
         ax = fig.add_subplot(projection = '3d')
 
-        if object.component == "total":
-            Min = 0
-            Max = self.def_min_max()
-        else:
-            Min, Max = self.def_min_max()
+        Min, Max = self.def_min_max()
 
         p = []
-        if object.component == "total":
-            y = np.array(vlsvobj.read_variable(object.variable, operator="y")[cid_sort]) / object.unit
-            z = np.array(vlsvobj.read_variable(object.variable, operator="z")[cid_sort]) / object.unit
-            magnitude = np.sqrt(y**2 + z**2)
-            magnitude_mesh = magnitude.reshape(-1, self.x_length)
-            p.append(ax.plot_surface(self.x_mesh, self.y_mesh, magnitude_mesh, color=COLORS[0]))
-        elif object.component == "deriv":
-            value = np.array(vlsvobj.read_variable(object.variable)[cid_sort]) / object.unit
-            value_mesh = value.reshape(-1, self.x_length)
-            p.append(ax.plot_surface(self.x_mesh, self.y_mesh, value_mesh, color = COLORS[0]))
-        else:
-            value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cid_sort]) / object.unit
-            value_mesh = value.reshape(-1, self.x_length)
-            p.append(ax.plot_surface(self.x_mesh, self.y_mesh, value_mesh, color = COLORS[0]))
-        
+        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cid_sort]) / object.unit
+        value_mesh = value.reshape(-1, self.x_length)
+        p.append(ax.plot_surface(self.x_mesh, self.y_mesh, value_mesh, color = COLORS[0]))
+    
         self.p = p
         self.ax = ax
 
-        if object.variable == "vg_b_vol":
-            ax.set_zlabel(f"B_{object.component} [nT]")
-            ax.set_title(f"B_{object.component} [nT]")
-        elif object.variable == "proton/vg_v":
-            ax.set_zlabel(f"v_{object.component} [km/s]")
-            ax.set_title(f"v_{object.component} [km/s]")
-        elif object.variable == "proton/vg_rho":
-            ax.set_zlabel("rho [1e6/cell]")
-            ax.set_title("rho [1e6/cell]")
-        elif object.variable == "vg_j":
-            ax.set_zlabel(f"J_{object.component} [nA/m**2]")
-            ax.set_title(f"J_{object.component} [nA/m**2]")
-        elif object.variable == "vg_derivatives/vg_dperbyvoldx":
-            ax.set_zlabel("dB_y/dx [fT]")
-            ax.set_title("dB_y/dx [fT] (f=femto [e-15])")
-        elif object.variable == "vg_derivatives/vg_dperbzvoldx":
-            ax.set_zlabel("dB_z/dx [fT]")
-            ax.set_title("dB_z/dx [fT] (f=femto [e-15])")
+        ax.set_zlabel(f"{object.variable_name} [{object.unit_name}]")
+        ax.set_title(f"{object.variable_name} [{object.unit_name}]")
 
         if object.variable == "vg_b_vol" and object.component == "x":
             ax.set_zlim(Min*0.9, Max*1.1)
@@ -210,45 +137,24 @@ class AnimationEngine:
         time = vlsvobj.read_parameter("time")
         self.timelabel.set_text(f"{time:.1f}s")
         
-        if object.component == "total":
-            y = np.array(vlsvobj.read_variable(object.variable, operator="y")[self.cid_sort]) / object.unit
-            z = np.array(vlsvobj.read_variable(object.variable, operator="z")[self.cid_sort]) / object.unit
-            magnitude = np.sqrt(y**2 + z**2)
-            magnitude_mesh = magnitude.reshape(-1, self.x_length)
-            self.p[0] = self.ax.plot_surface(self.x_mesh, self.y_mesh, magnitude_mesh, color = COLORS[0])
-        elif object.component == "deriv":
-            value = np.array(vlsvobj.read_variable(object.variable)[self.cid_sort]) / object.unit
-            value_mesh = value.reshape(-1, self.x_length)
-            self.p[0] = self.ax.plot_surface(self.x_mesh, self.y_mesh, value_mesh, color = COLORS[0])
-        else:
-            value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[self.cid_sort]) / object.unit
-            value_mesh = value.reshape(-1, self.x_length)
-            self.p[0] = self.ax.plot_surface(self.x_mesh, self.y_mesh, value_mesh, color = COLORS[0])
+        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[self.cid_sort]) / object.unit
+        value_mesh = value.reshape(-1, self.x_length)
+        self.p[0] = self.ax.plot_surface(self.x_mesh, self.y_mesh, value_mesh, color = COLORS[0])
 
         return self.p
     
     def def_min_max(self):
         object = self.object
         values = []
-        if object.component == "total":
-            for i in range(10):
-                fname = f"bulk.{str(i).zfill(7)}.vlsv"
-                vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + fname)
-                y = vlsvobj.read_variable(object.variable,operator="y")/object.unit
-                z =  vlsvobj.read_variable(object.variable,operator="z")/object.unit
-                values.extend(np.sqrt(y**2 + z**2))
-            return max(values)
-        elif object.component == "deriv":
-            for i in range(10):
-                fname = f"bulk.{str(i).zfill(7)}.vlsv"
-                vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + fname)   
-                values.extend(
-                    vlsvobj.read_variable(object.variable)/object.unit)
-        else:
-            for i in range(10):
-                fname = f"bulk.{str(i).zfill(7)}.vlsv"
-                vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + fname)   
-                values.extend(
-                    vlsvobj.read_variable(object.variable,operator=object.component)/object.unit)
+        for i in range(5):
+            fname = f"bulk.{str(i).zfill(7)}.vlsv"
+            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + fname)   
+            values.extend(
+                vlsvobj.read_variable(object.variable,operator=object.component)/object.unit)
+        for i in range(object.bulkfile_n - 5, object.bulkfile_n):
+            fname = f"bulk.{str(i).zfill(7)}.vlsv"
+            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + fname)   
+            values.extend(
+                vlsvobj.read_variable(object.variable,operator=object.component)/object.unit)
         return min(values), max(values)
     
