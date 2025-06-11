@@ -3,7 +3,6 @@ import analysator as pt
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import animation
-import itertools
 #enabling use of latex
 os.environ['PATH']='/home/rxelmer/Documents/turso/appl_local/tex-basic/texlive/2023/bin/x86_64-linux:'+ os.environ['PATH'] 
 os.environ['PTNOLATEX']='1'
@@ -87,6 +86,15 @@ class AnimationEngine:
         elif object.variable == "proton/vg_rho":
             cbar.set_label(("rho [1e6/cell]"))
             ax.set_title(f"rho [1e6/cell]")
+        elif object.variable == "vg_j":
+            cbar.set_label(f"J_{object.component} [nA/m**2]")
+            ax.set_title(f"J_{object.component} [nA/m**2]")
+        elif object.variable == "vg_derivatives/vg_dperbyvoldx":
+            cbar.set_label("dB_y/dx [fT]")
+            ax.set_title("dB_y/dx [fT] (f=femto [e-15])")
+        elif object.variable == "vg_derivatives/vg_dperbzvoldx":
+            cbar.set_label("dB_z/dx [fT]")
+            ax.set_title("dB_z/dx [fT] (f=femto [e-15])")
 
         ax.set_xlabel("x [RE]")
         ax.set_ylabel("y [RE]")
@@ -167,8 +175,14 @@ class AnimationEngine:
             ax.set_zlabel("rho [1e6/cell]")
             ax.set_title("rho [1e6/cell]")
         elif object.variable == "vg_j":
-            ax.set_zlabel(f"J_{object.component}")
-            ax.set_title(f"J_{object.component}")
+            ax.set_zlabel(f"J_{object.component} [nA/m**2]")
+            ax.set_title(f"J_{object.component} [nA/m**2]")
+        elif object.variable == "vg_derivatives/vg_dperbyvoldx":
+            ax.set_zlabel("dB_y/dx [fT]")
+            ax.set_title("dB_y/dx [fT] (f=femto [e-15])")
+        elif object.variable == "vg_derivatives/vg_dperbzvoldx":
+            ax.set_zlabel("dB_z/dx [fT]")
+            ax.set_title("dB_z/dx [fT] (f=femto [e-15])")
 
         if object.variable == "vg_b_vol" and object.component == "x":
             ax.set_zlim(Min*0.9, Max*1.1)

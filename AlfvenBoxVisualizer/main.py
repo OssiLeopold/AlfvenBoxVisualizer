@@ -13,20 +13,20 @@ bulkfile_number = 200
 # Has to be in the from of a tuple, e.g: ("<animation type>", "<variable_component>", "<dir/outputname.gif>")
 # animation types: 2D, 3D
 # variable_component: B_y, B_z, B_tot, <same for v>, and rho (for proton density)
-animations = [("2D", "B_x", "sim15_plots/sim15_Bx_2D.gif"),("2D", "B_y", "sim15_plots/sim15_By_2D.gif"),
-                ("2D", "B_z", "sim15_plots/sim15_Bz_2D.gif"),("2D", "v_x", "sim15_plots/sim15_vx_2D.gif"),
-                ("2D", "v_y", "sim15_plots/sim15_vy_2D.gif"),("2D", "v_z", "sim15_plots/sim15_vz_2D.gif"),
-                ("3D", "B_x", "sim15_plots/sim15_Bx_3D.gif"),("3D", "B_y", "sim15_plots/sim15_By_3D.gif"),
-                ("3D", "B_z", "sim15_plots/sim15_Bz_3D.gif"),("3D", "v_x", "sim15_plots/sim15_vx_3D.gif"),
-                ("3D", "v_y", "sim15_plots/sim15_vy_3D.gif"),("3D", "v_z", "sim15_plots/sim15_vz_3D.gif"),
+animations = [  ("2D", "dB_y/dx", "sim16_plots/sim16_dBy_dx_2D.gif"),("2D", "dB_z/dx", "sim16_plots/sim16_dBz_dx_2D.gif"),
+                ("3D", "dB_y/dx", "sim16_plots/sim16_dBy_dx_3D.gif"),("3D", "dB_z/dx", "sim16_plots/sim16_dBz_dx_3D.gif"),
+                ("2D", "J_y", "sim16_plots/sim16_Jy_2D.gif"),("2D", "J_z", "sim16_plots/sim16_Jz_2D.gif"),
+                ("3D", "J_y", "sim16_plots/sim16_Jy_3D.gif"),("3D", "J_z", "sim16_plots/sim16_Jz_3D.gif")]
 
-                ("2D", "B_tot", "sim15_plots/sim15_B_tot_2D.gif"),("2D", "v_tot", "sim15_plots/sim15_v_tot_2D.gif"),
-                ("3D", "B_tot", "sim15_plots/sim15_B_tot_3D.gif"),("3D", "v_tot", "sim15_plots/sim15_v_tot_3D.gif"),
+""" ("2D", "B_x", "sim16_plots/sim16_Bx_2D.gif"),("2D", "B_y", "sim16_plots/sim16_By_2D.gif"),
+                ("2D", "B_z", "sim16_plots/sim16_Bz_2D.gif"),("2D", "v_x", "sim16_plots/sim16_vx_2D.gif"),
+                ("2D", "v_y", "sim16_plots/sim16_vy_2D.gif"),("2D", "v_z", "sim16_plots/sim16_vz_2D.gif"),
+                ("3D", "B_x", "sim16_plots/sim16_Bx_3D.gif"),("3D", "B_y", "sim16_plots/sim16_By_3D.gif"),
+                ("3D", "B_z", "sim16_plots/sim16_Bz_3D.gif"),("3D", "v_x", "sim16_plots/sim16_vx_3D.gif"),
+                ("3D", "v_y", "sim16_plots/sim16_vy_3D.gif"),("3D", "v_z", "sim16_plots/sim16_vz_3D.gif"),
 
-                ("2D", "dB_y/dx", "sim15_plots/sim15_dBy_dx_2D.gif"),("2D", "dB_z/dx", "sim15_plots/sim15_dBz_dx_2D.gif"),
-                ("3D", "dB_y/dx", "sim15_plots/sim15_dBy_dx_3D.gif"),("3D", "dB_z/dx", "sim15_plots/sim15_dBz_dx_3D.gif"),
-                ("2D", "J_y", "sim15_plots/sim15_Jy_2D.gif"),("2D", "J_z", "sim15_plots/sim15_Jz_2D.gif"),
-                ("3D", "J_y", "sim15_plots/sim15_Jy_3D.gif"),("3D", "J_z", "sim15_plots/sim15_Jz_3D.gif")]
+                ("2D", "B_tot", "sim16_plots/sim16_B_tot_2D.gif"),("2D", "v_tot", "sim16_plots/sim16_v_tot_2D.gif"),
+                ("3D", "B_tot", "sim16_plots/sim16_B_tot_3D.gif"),("3D", "v_tot", "sim16_plots/sim16_v_tot_3D.gif"), """
 
 # Turn list into list of AnimationSpecs objects
 for i, object in enumerate(animations):
