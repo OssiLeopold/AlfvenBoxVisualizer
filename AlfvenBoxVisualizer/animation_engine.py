@@ -2,7 +2,9 @@ import os
 import analysator as pt
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy as sp
 from matplotlib import animation
+import matplotlib as mpl
 #enabling use of latex
 os.environ['PATH']='/home/rxelmer/Documents/turso/appl_local/tex-basic/texlive/2023/bin/x86_64-linux:'+ os.environ['PATH'] 
 os.environ['PTNOLATEX']='1'
@@ -23,8 +25,10 @@ class AnimationEngine:
         # Used in plotting
         x = np.array([vlsvobj.get_cell_coordinates(coord)[0] for coord in np.sort(self.cellids)]) / R_E
         y = np.array([vlsvobj.get_cell_coordinates(coord)[1] for coord in np.sort(self.cellids)]) / R_E
+        x_raw = np.array([vlsvobj.get_cell_coordinates(coord)[0] for coord in np.sort(self.cellids)])
         self.x_mesh = x.reshape(-1,self.x_length)
         self.y_mesh = y.reshape(-1,self.x_length)
+        self.x_raw = x_raw
         
         # Bring to class scope
         self.vlsvobj = vlsvobj
@@ -35,6 +39,54 @@ class AnimationEngine:
 
         elif object.animation_type == "3D":
             self.animation_3D()
+
+        elif object.animation_type == "fourier":
+            self.animation_fourier()
+
+    def animation_fourier(self):
+        vlsvobj = self.vlsvobj
+        object = self.object
+        cid_sort = self.cid_sort
+        N = int(self.x_length)
+
+        fig = plt.figure()
+        ax = fig.add_subplot()
+        
+        value = vlsvobj.read_variable(object.variable, operator=object.component)[cid_sort]
+        value_ft = sp.fft.fft(value[5000:N+5000])
+        value_ft = np.delete(value_ft, 0)
+        spatial_freq = sp.fft.fftfreq(N, np.diff(self.x_raw[0:N])[0])
+        spatial_freq = np.delete(spatial_freq, 0)
+
+        p = []
+        p.append(ax.plot(1 / spatial_freq[:N//2], np.abs(value_ft[:N//2])))
+        self.p = p
+        self.ax = ax
+
+        ax.set_xlabel("wavelength [m]")
+        ax.set_ylabel("B*m**3 []")
+
+        anim = animation.FuncAnimation(fig, self.update_fourier, frames = object.bulkfile_n + 1, interval = 20)
+        
+        writer = animation.PillowWriter(fps=5)
+        anim.save(object.name, writer = writer)
+        plt.close()
+
+    def update_fourier(self, frame):
+        N = int(self.x_length)
+        object = self.object
+        fname = f"bulk.{str(frame).zfill(7)}.vlsv"
+        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + fname)   
+
+        value = vlsvobj.read_variable(object.variable, operator=object.component)[self.cid_sort]
+        value_ft = sp.fft.fft(value[5000:N+5000])
+        value_ft = np.delete(value_ft, 0)
+        spatial_freq = sp.fft.fftfreq(N, np.diff(self.x_raw[0:N])[0])
+        spatial_freq = np.delete(spatial_freq, 0)
+
+        self.p[0][0].set_data(1 / spatial_freq[:N//2], np.abs(value_ft[:N//2]))
+
+        return self.p
 
     def animation_2D(self):
         vlsvobj = self.vlsvobj
