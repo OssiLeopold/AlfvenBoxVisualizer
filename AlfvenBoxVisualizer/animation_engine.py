@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import scipy as sp
 from matplotlib import animation
 import matplotlib as mpl
+from matplotlib.animation import FFMpegWriter
+plt.rcParams['animation.ffmpeg_path'] = "/home/rxelmer/Documents/turso/appl_local/ffmpeg/bin/ffmpeg"
 #enabling use of latex
 os.environ['PATH']='/home/rxelmer/Documents/turso/appl_local/tex-basic/texlive/2023/bin/x86_64-linux:'+ os.environ['PATH'] 
 os.environ['PTNOLATEX']='1'
@@ -59,16 +61,25 @@ class AnimationEngine:
         spatial_freq = np.delete(spatial_freq, 0)
 
         p = []
-        p.append(ax.plot(1 / spatial_freq[:N//2], np.abs(value_ft[:N//2])))
+        p.append(ax.plot( 2*np.pi/(1 / spatial_freq[:N//2-1]), np.abs(value_ft[:N//2-1])))
         self.p = p
         self.ax = ax
 
-        ax.set_xlabel("wavelength [m]")
-        ax.set_ylabel("B*m**3 []")
+        ax.set_title(f"Fourier transform of {object.variable_name}")
+        ax.set_xlabel("k")
+        ax.set_ylabel("Not quite sure")
+        ax.set_ylim(1e-12,1e-7)
+        for i in range(1,10):
+            ax.axvline(x = 2 * np.pi / (1.5*10**7 / i), lw = 0.5)
+        ax.set_yscale("log")
+        ax.set_xscale("log")
+        ax.grid(axis="y")
+
+        self.timelabel = ax.text(max(spatial_freq), max(np.abs(value_ft))*1.01, "")
 
         anim = animation.FuncAnimation(fig, self.update_fourier, frames = object.bulkfile_n + 1, interval = 20)
         
-        writer = animation.PillowWriter(fps=5)
+        writer = FFMpegWriter(fps=5)
         anim.save(object.name, writer = writer)
         plt.close()
 
@@ -76,7 +87,10 @@ class AnimationEngine:
         N = int(self.x_length)
         object = self.object
         fname = f"bulk.{str(frame).zfill(7)}.vlsv"
-        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + fname)   
+        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + fname)
+        
+        time = vlsvobj.read_parameter("time")
+        self.timelabel.set_text(f"{time:.1f}s")
 
         value = vlsvobj.read_variable(object.variable, operator=object.component)[self.cid_sort]
         value_ft = sp.fft.fft(value[5000:N+5000])
@@ -84,7 +98,7 @@ class AnimationEngine:
         spatial_freq = sp.fft.fftfreq(N, np.diff(self.x_raw[0:N])[0])
         spatial_freq = np.delete(spatial_freq, 0)
 
-        self.p[0][0].set_data(1 / spatial_freq[:N//2], np.abs(value_ft[:N//2]))
+        self.p[0][0].set_data(2*np.pi/(1 / spatial_freq[:N//2-1]), np.abs(value_ft[:N//2-1]))
 
         return self.p
 

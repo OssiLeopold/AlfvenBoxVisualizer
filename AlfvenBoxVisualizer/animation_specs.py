@@ -26,7 +26,7 @@ class AnimationSpecs():
             print("variable defined incorrectly")
             sys.exit(1)
 
-        if name[-3:] != "gif":
+        if name[-3:] not in ["gif", "mp4"]:
             print("filetype defined incorrectly")
             sys.exit(1)
 
