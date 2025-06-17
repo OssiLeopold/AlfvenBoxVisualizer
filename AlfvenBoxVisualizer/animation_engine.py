@@ -53,12 +53,14 @@ class AnimationEngine:
         fig = plt.figure()
         ax = fig.add_subplot()
         
-        value = vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()]
-        value_ft = sp.fft.fft(value[0:N])
-        
-        for i in range(1,100):
-            value_ft += sp.fft.fft(value[100*i:N+100*i])
-        value_ft = value_ft / 100
+        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
+        value_x_direc_mesh = value.reshape(-1,100)
+        value_y_direc_mesh = value_x_direc_mesh.T
+
+        value_ft_x = sp.fft.fft(value_x_direc_mesh[50])
+        value_ft_y = sp.fft.fft(value_y_direc_mesh[50])
+    
+        value_ft = value_ft_x + value_ft_y
         value_ft = np.delete(value_ft, 0)
 
         spatial_freq = sp.fft.fftfreq(N, np.diff(self.x_raw[0:N])[0])
@@ -97,12 +99,14 @@ class AnimationEngine:
         time = vlsvobj.read_parameter("time")
         self.timelabel.set_text(f"{time:.1f}s")
 
-        value = vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()]
-        value_ft = sp.fft.fft(value[0:N])
-        
-        for i in range(1,100):
-            value_ft += sp.fft.fft(value[100*i:N+100*i])
-        value_ft = value_ft / 100
+        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
+        value_x_direc_mesh = value.reshape(-1,100)
+        value_y_direc_mesh = value_x_direc_mesh.T
+
+        value_ft_x = sp.fft.fft(value_x_direc_mesh[50])
+        value_ft_y = sp.fft.fft(value_y_direc_mesh[50])
+    
+        value_ft = value_ft_x + value_ft_y
         value_ft = np.delete(value_ft, 0)
 
         spatial_freq = sp.fft.fftfreq(N, np.diff(self.x_raw[0:N])[0])

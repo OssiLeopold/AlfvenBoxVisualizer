@@ -15,11 +15,7 @@ bulkfile_number = 10
 # variable_component: B_y, B_z, B_tot, <same for v>, and rho (for proton density)
 def_beginning = "TurbulenceBoxPlots/sim7_plots/sim7"
 def_end = ".mp4"
-animations = [("fourier", "B_x"),("fourier", "B_y"),("fourier", "B_z"),("fourier", "B_tot"),
-              ("2D", "v_x"),("2D", "v_y"),("2D", "v_z"),("2D", "v_tot"),
-              ("3D", "v_x"),("3D", "v_y"),("3D", "v_z"),("3D", "v_tot"),
-              ("2D", "B_x"),("2D", "B_y"),("2D", "B_z"),("2D", "B_tot"),
-              ("3D", "B_x"),("3D", "B_y"),("3D", "B_z"),("3D", "B_tot") ]
+animations = [("fourier", "B_x"),("fourier", "B_y"),("fourier", "B_z"),("fourier", "B_tot")]
 
 """ ("2D", "v_x"),("2D", "v_y"),("2D", "v_z"),("2D", "v_tot"),
               ("3D", "v_x"),("3D", "v_y"),("3D", "v_z"),("3D", "v_tot"),
