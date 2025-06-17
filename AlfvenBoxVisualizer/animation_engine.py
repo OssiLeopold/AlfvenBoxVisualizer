@@ -34,7 +34,6 @@ class AnimationEngine:
         
         # Bring to class scope
         self.vlsvobj = vlsvobj
-        self.cid_sort = self.cellids.argsort()
 
         if object.animation_type == "2D":
             self.animation_2D()
@@ -48,15 +47,20 @@ class AnimationEngine:
     def animation_fourier(self):
         vlsvobj = self.vlsvobj
         object = self.object
-        cid_sort = self.cid_sort
+        cellids = vlsvobj.read_variable("CellID")
         N = int(self.x_length)
 
         fig = plt.figure()
         ax = fig.add_subplot()
         
-        value = vlsvobj.read_variable(object.variable, operator=object.component)[cid_sort]
-        value_ft = sp.fft.fft(value[5000:N+5000])
+        value = vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()]
+        value_ft = sp.fft.fft(value[0:N])
+        
+        for i in range(1,100):
+            value_ft += sp.fft.fft(value[100*i:N+100*i])
+        value_ft = value_ft / 100
         value_ft = np.delete(value_ft, 0)
+
         spatial_freq = sp.fft.fftfreq(N, np.diff(self.x_raw[0:N])[0])
         spatial_freq = np.delete(spatial_freq, 0)
 
@@ -68,7 +72,7 @@ class AnimationEngine:
         ax.set_title(f"Fourier transform of {object.variable_name}")
         ax.set_xlabel("k")
         ax.set_ylabel("Not quite sure")
-        ax.set_ylim(1e-12,1e-7)
+        ax.set_ylim(1e-11,1e-7)
         for i in range(1,10):
             ax.axvline(x = 2 * np.pi / (1.5*10**7 / i), lw = 0.5)
         ax.set_yscale("log")
@@ -88,13 +92,19 @@ class AnimationEngine:
         object = self.object
         fname = f"bulk.{str(frame).zfill(7)}.vlsv"
         vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + fname)
-        
+        cellids = vlsvobj.read_variable("CellID")
+
         time = vlsvobj.read_parameter("time")
         self.timelabel.set_text(f"{time:.1f}s")
 
-        value = vlsvobj.read_variable(object.variable, operator=object.component)[self.cid_sort]
-        value_ft = sp.fft.fft(value[5000:N+5000])
+        value = vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()]
+        value_ft = sp.fft.fft(value[0:N])
+        
+        for i in range(1,100):
+            value_ft += sp.fft.fft(value[100*i:N+100*i])
+        value_ft = value_ft / 100
         value_ft = np.delete(value_ft, 0)
+
         spatial_freq = sp.fft.fftfreq(N, np.diff(self.x_raw[0:N])[0])
         spatial_freq = np.delete(spatial_freq, 0)
 
@@ -105,7 +115,7 @@ class AnimationEngine:
     def animation_2D(self):
         vlsvobj = self.vlsvobj
         object = self.object
-        cid_sort = self.cid_sort
+        cellids = vlsvobj.read_variable("CellID")
 
         fig = plt.figure()
         ax = fig.add_subplot()
@@ -120,7 +130,7 @@ class AnimationEngine:
         self.level_boundaries = level_boundaries
 
         p = []
-        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cid_sort]) / object.unit
+        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()]) / object.unit
         value_mesh = value.reshape(-1, self.x_length)
         p.append(ax.contourf(self.x_mesh, self.y_mesh, value_mesh, level_boundaries))
         
@@ -137,7 +147,7 @@ class AnimationEngine:
 
         anim = animation.FuncAnimation(fig, self.update_2D, frames = object.bulkfile_n + 1, interval = 20)
 
-        writer = animation.PillowWriter(fps=5)
+        writer = FFMpegWriter(fps=5)
         anim.save(object.name, writer = writer)
         plt.close()
 
@@ -145,12 +155,13 @@ class AnimationEngine:
         self.p[0].remove()
         object = self.object
         fname = f"bulk.{str(frame).zfill(7)}.vlsv"
-        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + fname)   
+        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + fname)
+        cellids = vlsvobj.read_variable("CellID")   
 
         time = vlsvobj.read_parameter("time")
         self.timelabel.set_text(f"{time:.1f}s")
         
-        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[self.cid_sort]) / object.unit
+        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()]) / object.unit
         value_mesh = value.reshape(-1, self.x_length)
         self.p[0] = self.ax.contourf(self.x_mesh, self.y_mesh, value_mesh, self.level_boundaries)
 
@@ -159,7 +170,7 @@ class AnimationEngine:
     def animation_3D(self):
         vlsvobj = self.vlsvobj
         object = self.object
-        cid_sort = self.cid_sort
+        cellids = vlsvobj.read_variable("CellID")
 
         fig = plt.figure()
         ax = fig.add_subplot(projection = '3d')
@@ -167,7 +178,7 @@ class AnimationEngine:
         Min, Max = self.def_min_max()
 
         p = []
-        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cid_sort]) / object.unit
+        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()]) / object.unit
         value_mesh = value.reshape(-1, self.x_length)
         p.append(ax.plot_surface(self.x_mesh, self.y_mesh, value_mesh, color = COLORS[0]))
     
@@ -190,7 +201,7 @@ class AnimationEngine:
 
         anim = animation.FuncAnimation(fig, self.update_3D, frames = object.bulkfile_n + 1, interval = 20)
 
-        writer = animation.PillowWriter(fps=5)
+        writer = FFMpegWriter(fps=5)
         anim.save(object.name, writer = writer)
         plt.close()
 
@@ -199,11 +210,12 @@ class AnimationEngine:
         object = self.object
         fname = f"bulk.{str(frame).zfill(7)}.vlsv"
         vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + fname)   
+        cellids = vlsvobj.read_variable("CellID")
 
         time = vlsvobj.read_parameter("time")
         self.timelabel.set_text(f"{time:.1f}s")
         
-        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[self.cid_sort]) / object.unit
+        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()]) / object.unit
         value_mesh = value.reshape(-1, self.x_length)
         self.p[0] = self.ax.plot_surface(self.x_mesh, self.y_mesh, value_mesh, color = COLORS[0])
 
