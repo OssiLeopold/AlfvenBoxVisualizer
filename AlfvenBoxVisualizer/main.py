@@ -4,7 +4,7 @@ from animation_specs import AnimationSpecs      # Class for animation object
 from animation_engine import AnimationEngine    # Class for doing actual animation
 
 # Set path to simulation bulkfiles
-bulkpath = "/home/rxelmer/Documents/turso/bulks/sim7/"
+bulkpath = "/home/rxelmer/Documents/turso/bulks/sim10/"
 
 # Enter number of frames to be animated, define as None for all files
 bulkfile_number = 10
@@ -13,9 +13,9 @@ bulkfile_number = 10
 # Has to be in the from of a tuple, e.g: ("<animation type>", "<variable_component>")
 # animation types: 2D, 3D
 # variable_component: B_y, B_z, B_tot, <same for v>, and rho (for proton density)
-def_beginning = "TurbulenceBoxPlots/sim7_plots/sim7"
+def_beginning = "TurbulenceBoxPlots/sim10_plots/sim10"
 def_end = ".mp4"
-animations = [("fourier", "B_x"),("fourier", "B_y"),("fourier", "B_z"),("fourier", "B_tot")]
+animations = [("fourier", "B_x"),("fourier", "B_y")]
 
 """ ("2D", "v_x"),("2D", "v_y"),("2D", "v_z"),("2D", "v_tot"),
               ("3D", "v_x"),("3D", "v_y"),("3D", "v_z"),("3D", "v_tot"),
