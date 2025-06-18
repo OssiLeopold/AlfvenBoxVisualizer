@@ -9,6 +9,7 @@ translate = {"B_x":("vg_b_vol", "x", 1e-9, "nT"),
                 "B_tot":("vg_b_vol", "magnitude", 1e-9, "nT"),
                 "J_y":("vg_j", "y", 1e-9, "nA/m**2"),
                 "J_z":("vg_j", "z", 1e-9, "nA/m**2"),
+                "J_x":("vg_j", "x", 1e-9, "nA/m**2"),
                 "v_x":("proton/vg_v", "x", 1e3, "km/s"),
                 "v_y":("proton/vg_v", "y", 1e3, "km/s"),
                 "v_z":("proton/vg_v", "z", 1e3, "km/s"),
@@ -17,12 +18,12 @@ translate = {"B_x":("vg_b_vol", "x", 1e-9, "nT"),
 
 # Defining AnimationSpecs object and checking instructions
 class AnimationSpecs():
-    def __init__(self, animation_type, variable, name, bulkpath, bulkfile_n):
+    def __init__(self, animation_type, variable, name, bulkfile_n):
         if animation_type not in ["3D", "2D", "fourier"]:
             print("animation_type defined incorrectly")
             sys.exit(1)
 
-        if variable not in ["B_y", "B_z", "B_x", "dB_y/dx", "dB_z/dx", "B_tot", "J_y", "J_z", "v_y", "v_z", "v_x", "v_tot", "rho"]:
+        if variable not in ["B_y", "B_z", "B_x", "dB_y/dx", "dB_z/dx", "B_tot", "J_x", "J_y", "J_z", "v_y", "v_z", "v_x", "v_tot", "rho"]:
             print("variable defined incorrectly")
             sys.exit(1)
 
@@ -37,5 +38,4 @@ class AnimationSpecs():
         self.unit = translate[variable][2]
         self.unit_name = translate[variable][3]
         self.name = name
-        self.bulkpath = bulkpath
         self.bulkfile_n = bulkfile_n

@@ -3,6 +3,7 @@ import analysator as pt
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy as sp
+from multiprocessing import shared_memory
 from matplotlib import animation
 import matplotlib as mpl
 from matplotlib.animation import FFMpegWriter
@@ -16,10 +17,12 @@ R_E = 6371e3 # Earth radius
 COLORS = ["blue", "orange"]
 
 class AnimationEngine:
-    def __init__(self, object):
-        self.object = object
-
-        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + "bulk.0000000.vlsv")
+    def __init__(self, args):
+        shm_name, shape, dtype, self.object = args
+        existing_shm = shared_memory.SharedMemory(name=shm_name)
+        self.bulkfiles = np.ndarray(shape, dtype=dtype, buffer=existing_shm.buf)
+        
+        vlsvobj = self.bulkfiles[0]
         cellids = vlsvobj.read_variable("CellID")
         self.x_length = vlsvobj.read_parameter("xcells_ini") # Used for formatting numpy mesh
         self.xmax = vlsvobj.read_parameter("xmax") / R_E # Used for positioning text
@@ -33,18 +36,18 @@ class AnimationEngine:
         self.y_mesh = y.reshape(-1,self.x_length) # Reshape y -|-
         self.x_raw = x_raw # Bring x coords in meters to class scope
 
-        if object.animation_type == "2D":
+        if self.object.animation_type == "2D":
             self.animation_2D()
 
-        elif object.animation_type == "3D":
+        elif self.object.animation_type == "3D":
             self.animation_3D()
 
-        elif object.animation_type == "fourier":
+        elif self.object.animation_type == "fourier":
             self.animation_fourier()
 
     def animation_fourier(self):
         object = self.object # For shorter notation
-        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + "bulk.0000000.vlsv")
+        vlsvobj = self.bulkfiles[0]
         cellids = vlsvobj.read_variable("CellID")
         N = int(self.x_length) # For shorter notation
 
@@ -69,10 +72,9 @@ class AnimationEngine:
 
         p = []
         p.append(ax.plot( 2*np.pi * spatial_freq[:N//2], np.abs(value_ft[:N//2])))
-        p.append(ax.plot(2*np.pi * spatial_freq[:N//2], 10**(-20) * (2*np.pi*spatial_freq[:N//2])**(-2)))
-        p.append(ax.plot(2*np.pi * spatial_freq[:N//2], 10**(-18) * (2*np.pi*spatial_freq[:N//2])**(-5/3)))
+        p.append(ax.plot(2*np.pi * spatial_freq[:N//2], 10**(-20) * (2*np.pi*spatial_freq[:N//2])**(-2), label = "k**(-2)"))
+        p.append(ax.plot(2*np.pi * spatial_freq[:N//2], 10**(-18) * (2*np.pi*spatial_freq[:N//2])**(-5/3), label = "k**(-5/3)"))
 
-        print(10**(4) * (2*np.pi*spatial_freq[:N//2])**(-2))
         self.p = p
         self.ax = ax
 
@@ -85,6 +87,7 @@ class AnimationEngine:
         ax.set_yscale("log")
         ax.set_xscale("log")
         ax.grid(axis="y")
+        ax.legend()
 
         self.timelabel = ax.text(max(spatial_freq), max(np.abs(value_ft))*1.01, "")
 
@@ -97,8 +100,7 @@ class AnimationEngine:
     def update_fourier(self, frame):
         N = int(self.x_length)
         object = self.object
-        fname = f"bulk.{str(frame).zfill(7)}.vlsv"
-        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + fname)
+        vlsvobj = self.bulkfiles[frame]
         cellids = vlsvobj.read_variable("CellID")
 
         time = vlsvobj.read_parameter("time")
@@ -123,7 +125,7 @@ class AnimationEngine:
 
     def animation_2D(self):
         object = self.object
-        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + "bulk.0000000.vlsv")
+        vlsvobj = self.bulkfiles[0]
         cellids = vlsvobj.read_variable("CellID")
 
         fig = plt.figure()
@@ -160,8 +162,7 @@ class AnimationEngine:
     def update_2D(self, frame):
         self.p[0].remove()
         object = self.object
-        fname = f"bulk.{str(frame).zfill(7)}.vlsv"
-        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + fname)
+        vlsvobj = self.bulkfiles[frame]
         cellids = vlsvobj.read_variable("CellID")   
 
         time = vlsvobj.read_parameter("time")
@@ -175,7 +176,7 @@ class AnimationEngine:
 
     def animation_3D(self):
         object = self.object
-        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + "bulk.0000000.vlsv")
+        vlsvobj = self.bulkfiles[0]
         cellids = vlsvobj.read_variable("CellID")
 
         fig = plt.figure()
@@ -214,8 +215,7 @@ class AnimationEngine:
     def update_3D(self, frame):
         self.p[0].remove()
         object = self.object
-        fname = f"bulk.{str(frame).zfill(7)}.vlsv"
-        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + fname)   
+        vlsvobj = self.bulkfiles[frame]  
         cellids = vlsvobj.read_variable("CellID")
 
         time = vlsvobj.read_parameter("time")
@@ -230,14 +230,12 @@ class AnimationEngine:
     def def_min_max(self):
         object = self.object
         values = []
-        for i in range(5):
-            fname = f"bulk.{str(i).zfill(7)}.vlsv"
-            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + fname)   
+        for i in range(15):
+            vlsvobj = self.bulkfiles[i]   
             values.extend(
                 vlsvobj.read_variable(object.variable,operator=object.component)/object.unit)
-        for i in range(object.bulkfile_n - 5, object.bulkfile_n):
-            fname = f"bulk.{str(i).zfill(7)}.vlsv"
-            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + fname)   
+        for i in range(object.bulkfile_n - 15, object.bulkfile_n):
+            vlsvobj = self.bulkfiles[i]   
             values.extend(
                 vlsvobj.read_variable(object.variable,operator=object.component)/object.unit)
         return min(values), max(values)
