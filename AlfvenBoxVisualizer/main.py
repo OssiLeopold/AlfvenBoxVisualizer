@@ -8,23 +8,18 @@ import analysator as pt
 import numpy as np
 
 # Set path to simulation bulkfiles
-bulkpath = "/home/rxelmer/Documents/turso/bulks/sim12/"
+bulkpath = "/home/rxelmer/Documents/turso/bulks/sim7/"
 
 # Enter number of frames to be animated, define as None for all files
 bulkfile_number = 100
 
-bulkfiles = []
-for i in range(bulkfile_number + 1):
-    bulkfiles.append(pt.vlsvfile.VlsvReader(bulkpath + f"bulk.{str(i).zfill(7)}.vlsv"))
-    
-bulkfiles = np.array(bulkfiles) 
 # Define what animations are to be produced
 # Has to be in the from of a tuple, e.g: ("<animation type>", "<variable_component>")
 # animation types: 2D, 3D
 # variable_component: B_y, B_z, B_tot, <same for v>, and rho (for proton density)
-def_beginning = "TurbulenceBoxPlots/sim12_anim/sim12"
+def_beginning = "TurbulenceBoxPlots/sim7_plots/sim7"
 def_end = ".mp4"
-animations = [("fourier", "B_x"),("fourier", "B_z"),("fourier", "B_y")]
+animations = [("fourier", "B_x"),("fourier", "B_y"),("fourier", "B_z"),("fourier", "B_tot")]
 
 """ ("2D", "v_x"),("2D", "v_y"),("2D", "v_z"),("2D", "v_tot"),
               ("3D", "v_x"),("3D", "v_y"),("3D", "v_z"),("3D", "v_tot"),
@@ -37,18 +32,12 @@ animations = [("fourier", "B_x"),("fourier", "B_z"),("fourier", "B_y")]
               ("fourier", "B_y"),("fourier", "B_z") """
 
 # Turn list into list of AnimationSpecs objects
-shm = shared_memory.SharedMemory(create=True, size=bulkfiles.nbytes)
-shared_array = np.ndarray(bulkfiles.shape, dtype=bulkfiles.dtype, buffer=shm.buf)
-shared_array[:] = bulkfiles[:]
 
 for i, object in enumerate(animations):
-    animations[i] = AnimationSpecs(object[0], object[1], f"{def_beginning}_{object[1]}_{object[0]}{def_end}", bulkfile_number)
+    animations[i] = AnimationSpecs(object[0], object[1], f"{def_beginning}_{object[1]}_{object[0]}{def_end}", bulkfile_number, bulkpath)
 
-args = [(shm.name, bulkfiles.shape, bulkfiles.dtype, animation) for animation in animations]
 
 # Launch a separate process for each AnimationSpecs object
-with mp.Pool(len(args)) as process:
-    process.map(AnimationEngine, args)
+with mp.Pool(len(animations)) as process:
+    process.map(AnimationEngine, animations)
 
-shm.close()
-shm.unlink()

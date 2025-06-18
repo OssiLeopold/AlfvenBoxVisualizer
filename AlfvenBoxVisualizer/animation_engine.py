@@ -7,7 +7,6 @@ from multiprocessing import shared_memory
 from matplotlib import animation
 import matplotlib as mpl
 from matplotlib.animation import FFMpegWriter
-from scipy.linalg import fractional_matrix_power
 plt.rcParams['animation.ffmpeg_path'] = "/home/rxelmer/Documents/turso/appl_local/ffmpeg/bin/ffmpeg"
 #enabling use of latex
 os.environ['PATH']='/home/rxelmer/Documents/turso/appl_local/tex-basic/texlive/2023/bin/x86_64-linux:'+ os.environ['PATH'] 
@@ -17,24 +16,25 @@ R_E = 6371e3 # Earth radius
 COLORS = ["blue", "orange"]
 
 class AnimationEngine:
-    def __init__(self, args):
-        shm_name, shape, dtype, self.object = args
-        existing_shm = shared_memory.SharedMemory(name=shm_name)
-        self.bulkfiles = np.ndarray(shape, dtype=dtype, buffer=existing_shm.buf)
-        
-        vlsvobj = self.bulkfiles[0]
-        cellids = vlsvobj.read_variable("CellID")
+    def __init__(self, object):
+        self.object = object
+
+        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + "bulk.0000000.vlsv")
+        self.cellids = vlsvobj.read_variable("CellID") # Used for sorting variables read by VlsvReader
         self.x_length = vlsvobj.read_parameter("xcells_ini") # Used for formatting numpy mesh
-        self.xmax = vlsvobj.read_parameter("xmax") / R_E # Used for positioning text
-        self.ymax = vlsvobj.read_parameter("ymax") / R_E # -|-
+        self.xmax = vlsvobj.read_parameter("xmax") / R_E
+        self.ymax = vlsvobj.read_parameter("ymax") / R_E
 
         # Used in plotting
-        x = np.array([vlsvobj.get_cell_coordinates(coord)[0] for coord in np.sort(cellids)]) / R_E # x coords in terns of earths radius
-        y = np.array([vlsvobj.get_cell_coordinates(coord)[1] for coord in np.sort(cellids)]) / R_E # y coords -|-
-        x_raw = np.array([vlsvobj.get_cell_coordinates(coord)[0] for coord in np.sort(cellids)]) # x coords in meters for fourier transform
-        self.x_mesh = x.reshape(-1,self.x_length) # Reshape x coords to grid
-        self.y_mesh = y.reshape(-1,self.x_length) # Reshape y -|-
-        self.x_raw = x_raw # Bring x coords in meters to class scope
+        x = np.array([vlsvobj.get_cell_coordinates(coord)[0] for coord in np.sort(self.cellids)]) / R_E
+        y = np.array([vlsvobj.get_cell_coordinates(coord)[1] for coord in np.sort(self.cellids)]) / R_E
+        x_raw = np.array([vlsvobj.get_cell_coordinates(coord)[0] for coord in np.sort(self.cellids)])
+        self.x_mesh = x.reshape(-1,self.x_length)
+        self.y_mesh = y.reshape(-1,self.x_length)
+        self.x_raw = x_raw
+        
+        # Bring to class scope
+        self.vlsvobj = vlsvobj
 
         if self.object.animation_type == "2D":
             self.animation_2D()
@@ -46,16 +46,14 @@ class AnimationEngine:
             self.animation_fourier()
 
     def animation_fourier(self):
-        object = self.object # For shorter notation
-        vlsvobj = self.bulkfiles[0]
+        vlsvobj = self.vlsvobj
+        object = self.object
         cellids = vlsvobj.read_variable("CellID")
-        N = int(self.x_length) # For shorter notation
+        N = int(self.x_length)
 
-        # Initialize plot
         fig = plt.figure()
         ax = fig.add_subplot()
         
-        # Read values to be used and create mesh for both directions
         value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
         value_x_direc_mesh = value.reshape(-1,100)
         value_y_direc_mesh = value_x_direc_mesh.T
@@ -69,6 +67,7 @@ class AnimationEngine:
 
         # Define spatial frequency. Delete first element due to zero value -> whould lead to infinite wavelength
         spatial_freq = sp.fft.fftfreq(N, np.diff(self.x_raw[0:N])[0])
+        spatial_freq = np.delete(spatial_freq, 0)
 
         p = []
         p.append(ax.plot( 2*np.pi * spatial_freq[:N//2], np.abs(value_ft[:N//2])))
@@ -113,19 +112,19 @@ class AnimationEngine:
         value_ft = sp.fft.fft(value_x_direc_mesh[25])
         #value_ft_y = sp.fft.fft(value_y_direc_mesh[50])
     
-        #value_ft = (value_ft_x + value_ft_y) / 2
+        value_ft = value_ft_x + value_ft_y
+        value_ft = np.delete(value_ft, 0)
 
         spatial_freq = sp.fft.fftfreq(N, np.diff(self.x_raw[0:N])[0])
+        spatial_freq = np.delete(spatial_freq, 0)
 
-        self.p[0][0].set_data(2*np.pi * spatial_freq[:N//2], np.abs(value_ft[:N//2]))
-        self.p[1][0].set_data(2*np.pi * spatial_freq[:N//2], 10**(-20) * (2*np.pi*spatial_freq[:N//2])**(-2))
-        self.p[2][0].set_data(2*np.pi * spatial_freq[:N//2], 10**(-18) * (2*np.pi*spatial_freq[:N//2])**(-5/3))
+        self.p[0][0].set_data(2*np.pi/(1 / spatial_freq[:N//2-1]), np.abs(value_ft[:N//2-1]))
 
         return self.p
 
     def animation_2D(self):
+        vlsvobj = self.vlsvobj
         object = self.object
-        vlsvobj = self.bulkfiles[0]
         cellids = vlsvobj.read_variable("CellID")
 
         fig = plt.figure()
@@ -133,8 +132,11 @@ class AnimationEngine:
 
         Min, Max = self.def_min_max()
 
-        levels = 200
-        level_boundaries = np.linspace(Min, Max, levels + 1)
+        levels = 100
+        if object.variable == "vg_b_vol" and object.component == "x":
+            level_boundaries = np.linspace(Min*0.9, Max*1.1, levels + 1)
+        else:
+            level_boundaries = np.linspace(Min, Max, levels + 1)
         self.level_boundaries = level_boundaries
 
         p = []
@@ -175,8 +177,8 @@ class AnimationEngine:
         return self.p
 
     def animation_3D(self):
+        vlsvobj = self.vlsvobj
         object = self.object
-        vlsvobj = self.bulkfiles[0]
         cellids = vlsvobj.read_variable("CellID")
 
         fig = plt.figure()
