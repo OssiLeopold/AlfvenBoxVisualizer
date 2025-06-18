@@ -61,11 +61,11 @@ class AnimationEngine:
         value_y_direc_mesh = value_x_direc_mesh.T
 
         # Take Fourier transfrom from a slice in the middle in both directions
-        value_ft_x = sp.fft.fft(value_x_direc_mesh[50])
-        value_ft_y = sp.fft.fft(value_y_direc_mesh[50])
+        value_ft = sp.fft.fft(value_x_direc_mesh[25])
+        #value_ft_y = sp.fft.fft(value_y_direc_mesh[50])
 
         # Average of the two in both directions
-        value_ft = (value_ft_x + value_ft_y) / 2
+        #value_ft = (value_ft_x + value_ft_y) / 2
 
         # Define spatial frequency. Delete first element due to zero value -> whould lead to infinite wavelength
         spatial_freq = sp.fft.fftfreq(N, np.diff(self.x_raw[0:N])[0])
@@ -110,10 +110,10 @@ class AnimationEngine:
         value_x_direc_mesh = value.reshape(-1,100)
         value_y_direc_mesh = value_x_direc_mesh.T
 
-        value_ft_x = sp.fft.fft(value_x_direc_mesh[50])
-        value_ft_y = sp.fft.fft(value_y_direc_mesh[50])
+        value_ft = sp.fft.fft(value_x_direc_mesh[25])
+        #value_ft_y = sp.fft.fft(value_y_direc_mesh[50])
     
-        value_ft = (value_ft_x + value_ft_y) / 2
+        #value_ft = (value_ft_x + value_ft_y) / 2
 
         spatial_freq = sp.fft.fftfreq(N, np.diff(self.x_raw[0:N])[0])
 
@@ -230,13 +230,13 @@ class AnimationEngine:
     def def_min_max(self):
         object = self.object
         values = []
-        for i in range(15):
+        for i in range(object.bulkfile_n):
             vlsvobj = self.bulkfiles[i]   
             values.extend(
                 vlsvobj.read_variable(object.variable,operator=object.component)/object.unit)
-        for i in range(object.bulkfile_n - 15, object.bulkfile_n):
+        """ for i in range(object.bulkfile_n - 5, object.bulkfile_n):
             vlsvobj = self.bulkfiles[i]   
             values.extend(
-                vlsvobj.read_variable(object.variable,operator=object.component)/object.unit)
+                vlsvobj.read_variable(object.variable,operator=object.component)/object.unit) """
         return min(values), max(values)
     
