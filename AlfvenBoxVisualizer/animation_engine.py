@@ -99,7 +99,7 @@ class AnimationEngine:
     def update_fourier(self, frame):
         N = int(self.x_length)
         object = self.object
-        vlsvobj = self.bulkfiles[frame]
+        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(frame).zfill(7)}.vlsv")
         cellids = vlsvobj.read_variable("CellID")
 
         time = vlsvobj.read_parameter("time")
@@ -107,18 +107,18 @@ class AnimationEngine:
 
         value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
         value_x_direc_mesh = value.reshape(-1,100)
-        value_y_direc_mesh = value_x_direc_mesh.T
+        #value_y_direc_mesh = value_x_direc_mesh.T
 
         value_ft = sp.fft.fft(value_x_direc_mesh[25])
         #value_ft_y = sp.fft.fft(value_y_direc_mesh[50])
     
-        value_ft = value_ft_x + value_ft_y
+        #value_ft = value_ft_x + value_ft_y
         value_ft = np.delete(value_ft, 0)
 
         spatial_freq = sp.fft.fftfreq(N, np.diff(self.x_raw[0:N])[0])
         spatial_freq = np.delete(spatial_freq, 0)
 
-        self.p[0][0].set_data(2*np.pi/(1 / spatial_freq[:N//2-1]), np.abs(value_ft[:N//2-1]))
+        self.p[0][0].set_data(2*np.pi*spatial_freq[:N//2-1], np.abs(value_ft[:N//2-1]))
 
         return self.p
 
@@ -132,11 +132,8 @@ class AnimationEngine:
 
         Min, Max = self.def_min_max()
 
-        levels = 100
-        if object.variable == "vg_b_vol" and object.component == "x":
-            level_boundaries = np.linspace(Min*0.9, Max*1.1, levels + 1)
-        else:
-            level_boundaries = np.linspace(Min, Max, levels + 1)
+        levels = 300
+        level_boundaries = np.linspace(Min, Max, levels + 1)
         self.level_boundaries = level_boundaries
 
         p = []
@@ -164,7 +161,7 @@ class AnimationEngine:
     def update_2D(self, frame):
         self.p[0].remove()
         object = self.object
-        vlsvobj = self.bulkfiles[frame]
+        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(frame).zfill(7)}.vlsv")
         cellids = vlsvobj.read_variable("CellID")   
 
         time = vlsvobj.read_parameter("time")
@@ -217,7 +214,7 @@ class AnimationEngine:
     def update_3D(self, frame):
         self.p[0].remove()
         object = self.object
-        vlsvobj = self.bulkfiles[frame]  
+        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(frame).zfill(7)}.vlsv")  
         cellids = vlsvobj.read_variable("CellID")
 
         time = vlsvobj.read_parameter("time")
@@ -233,7 +230,7 @@ class AnimationEngine:
         object = self.object
         values = []
         for i in range(object.bulkfile_n):
-            vlsvobj = self.bulkfiles[i]   
+            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(i).zfill(7)}.vlsv")   
             values.extend(
                 vlsvobj.read_variable(object.variable,operator=object.component)/object.unit)
         """ for i in range(object.bulkfile_n - 5, object.bulkfile_n):
