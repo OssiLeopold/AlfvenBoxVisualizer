@@ -59,21 +59,20 @@ class AnimationEngine:
         value_y_direc_mesh = value_x_direc_mesh.T
 
         # Take Fourier transfrom from a slice in the middle in both directions
-        value_ft = sp.fft.fft(value_x_direc_mesh[25])
-        #value_ft_y = sp.fft.fft(value_y_direc_mesh[50])
+        value_ft_x = sp.fft.fft(value_x_direc_mesh[50])
+        value_ft_y = sp.fft.fft(value_y_direc_mesh[50])
 
         # Average of the two in both directions
-        #value_ft = (value_ft_x + value_ft_y) / 2
+        value_ft = value_ft_x + value_ft_y
 
         # Define spatial frequency. Delete first element due to zero value -> whould lead to infinite wavelength
         spatial_freq = sp.fft.fftfreq(N, np.diff(self.x_raw[0:N])[0])
-        spatial_freq = np.delete(spatial_freq, 0)
 
         p = []
         p.append(ax.plot( 2*np.pi * spatial_freq[:N//2], np.abs(value_ft[:N//2])))
         spatial_freq_for_curve = np.delete(spatial_freq,0)
-        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2], 10**(-20) * (2*np.pi*spatial_freq_for_curve[:N//2])**(-2), label = "k**(-2)"))
-        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2], 10**(-18) * (2*np.pi*spatial_freq_for_curve[:N//2])**(-5/3), label = "k**(-5/3)"))
+        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], 10**(-20) * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-2), label = "k**(-2)"))
+        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], 10**(-18) * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-5/3), label = "k**(-5/3)"))
 
         self.p = p
         self.ax = ax
@@ -108,70 +107,44 @@ class AnimationEngine:
 
         value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
         value_x_direc_mesh = value.reshape(-1,100)
-        #value_y_direc_mesh = value_x_direc_mesh.T
+        value_y_direc_mesh = value_x_direc_mesh.T
 
-        value_ft = sp.fft.fft(value_x_direc_mesh[25])
-        #value_ft_y = sp.fft.fft(value_y_direc_mesh[50])
+        value_ft_x = sp.fft.fft(value_x_direc_mesh[50])
+        value_ft_y = sp.fft.fft(value_y_direc_mesh[50])
     
-        #value_ft = value_ft_x + value_ft_y
-        value_ft = np.delete(value_ft, 0)
+        value_ft = value_ft_x + value_ft_y
 
         spatial_freq = sp.fft.fftfreq(N, np.diff(self.x_raw[0:N])[0])
-        spatial_freq = np.delete(spatial_freq, 0)
 
         self.p[0][0].set_data(2*np.pi*spatial_freq[:N//2-1], np.abs(value_ft[:N//2-1]))
 
         return self.p
 
     def animation_2D(self):
+        fig, self.ax = plt.subplots()
         vlsvobj = self.vlsvobj
-        object = self.object
-        cellids = vlsvobj.read_variable("CellID")
+        self.Min, self.Max = self.def_min_max()
 
-        fig = plt.figure()
-        ax = fig.add_subplot()
+        if abs(self.Min) > abs(self.Max):
+            self.Max = -self.Min
+        else:
+            self.Min = -self.Max
 
-        Min, Max = self.def_min_max()
+        self.p = [pt.plot.plot_colormap(
+            vlsvobj = vlsvobj, var = self.object.variable, operator = self.object.component, axes=self.ax, vmin = self.Min, vmax = self.Max)]
 
-        levels = 300
-        level_boundaries = np.linspace(Min, Max, levels + 1)
-        self.level_boundaries = level_boundaries
-
-        p = []
-        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()]) / object.unit
-        value_mesh = value.reshape(-1, self.x_length)
-        p.append(ax.contourf(self.x_mesh, self.y_mesh, value_mesh, level_boundaries))
-        
-        self.p = p
-        self.ax = ax
-
-        cbar = plt.colorbar(p[0])
-        cbar.set_label(f"{object.variable_name} [{object.unit_name}]")
-        ax.set_title(f"{object.variable_name} [{object.unit_name}]")
-
-        ax.set_xlabel("x [RE]")
-        ax.set_ylabel("y [RE]")
-        self.timelabel = ax.text(self.xmax, self.ymax*1.01, "")
-
-        anim = animation.FuncAnimation(fig, self.update_2D, frames = object.bulkfile_n + 1, interval = 20)
+        anim = animation.FuncAnimation(fig, self.update_2D, frames = self.object.bulkfile_n + 1, interval = 20)
 
         writer = FFMpegWriter(fps=5)
-        anim.save(object.name, writer = writer)
+        anim.save(self.object.name, writer = writer)
         plt.close()
 
     def update_2D(self, frame):
-        self.p[0].remove()
-        object = self.object
-        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(frame).zfill(7)}.vlsv")
-        cellids = vlsvobj.read_variable("CellID")   
-
-        time = vlsvobj.read_parameter("time")
-        self.timelabel.set_text(f"{time:.1f}s")
-        
-        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()]) / object.unit
-        value_mesh = value.reshape(-1, self.x_length)
-        self.p[0] = self.ax.contourf(self.x_mesh, self.y_mesh, value_mesh, self.level_boundaries)
-
+        self.p.clear()
+        # fetch vlsv file
+        vlsvobj = pt.vlsvfile.VlsvReader(self.object.bulkpath + f"bulk.{str(frame).zfill(7)}.vlsv")
+        pt.plot.plot_colormap(
+            vlsvobj = vlsvobj, var = self.object.variable, operator = self.object.component, axes=self.ax, vmin = self.Min, vmax = self.Max, nocb = "No")
         return self.p
 
     def animation_3D(self):
@@ -233,10 +206,6 @@ class AnimationEngine:
         for i in range(object.bulkfile_n):
             vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(i).zfill(7)}.vlsv")   
             values.extend(
-                vlsvobj.read_variable(object.variable,operator=object.component)/object.unit)
-        """ for i in range(object.bulkfile_n - 5, object.bulkfile_n):
-            vlsvobj = self.bulkfiles[i]   
-            values.extend(
-                vlsvobj.read_variable(object.variable,operator=object.component)/object.unit) """
+                vlsvobj.read_variable(object.variable,operator=object.component))
         return min(values), max(values)
     

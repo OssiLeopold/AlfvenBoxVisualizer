@@ -8,37 +8,43 @@ import analysator as pt
 import numpy as np
 
 # Set path to simulation bulkfiles
-bulkpath = "/home/rxelmer/Documents/turso/bulks/sim13/"
+bulkpath = "/home/rxelmer/Documents/turso/bulks/sim11/"
 
 # Enter number of frames to be animated, define as None for all files
-bulkfile_number = 250
+bulkfile_number = 10
 
 # Define what animations are to be produced
-# Has to be in the from of a tuple, e.g: ("<animation type>", "<variable_component>")
-# animation types: 2D, 3D
+# Has to be in the from of a tuple, e.g: ("<animation type>", "<variable_component>", "<fourier spesific>")
+# animation types: 2D, 3D, fourier,
 # variable_component: B_y, B_z, B_tot, <same for v>, and rho (for proton density)
-def_beginning = "TurbulenceBoxPlots/sim13_anim/sim13"
+# fourier_spesific: ("x", <0-1>) -> x (or y) states the direction along which you want the slice to be done.
+#                   <0-1> states the y (or x) coordinate where you want the slice to be done (0-1 -> y_min - y_max).
+# fourier_spesific: ("diag", <1 or 2>) -> if you want fourier in diagonal direction. Enter 1 if you want SW-NE.
+#                   Enter 2 if you want NW-SW.
+# fourier_spesific: ("trace", <0-1>, <0-1>) -> If you want trace PSD.
+#                   First number for x slice y-coord and second number for y slice x-coord.
+# fourier_spesigic: ("trace_diag") -> for trace PSD for diag directions.
+ 
+def_beginning = "TurbulenceBoxPlots/sim11_anim/sim11"
 def_end = ".mp4"
-animations = [("fourier", "B_x"),("fourier", "B_y"),("fourier", "B_z"),
-              ("2D", "B_x"),("2D", "B_y"),("2D", "B_z"),("2D", "B_tot"),
+animations = [
+              ("2D", "v_y")
+              ]
+
+""" ("fourier", "B_x"),("fourier", "B_y"),("fourier", "B_z") """
+
+""" ("2D", "B_x"),("2D", "B_y"),("2D", "B_z"),("2D", "B_tot"),
               ("2D", "v_x"),("2D", "v_y"),("2D", "v_z"),("2D", "v_tot"),
-              ("3D", "B_x"),("3D", "B_y"),("3D", "B_z"),("3D", "B_tot"),
-              ("3D", "v_x"),("3D", "v_y"),("3D", "v_z"),("3D", "v_tot")]
+              ("2D", "J_x"),("2D", "J_y"),("2D", "J_z"), """
 
-""" ("2D", "v_x"),("2D", "v_y"),("2D", "v_z"),("2D", "v_tot"),
-              ("3D", "v_x"),("3D", "v_y"),("3D", "v_z"),("3D", "v_tot"),
-              ("2D", "B_x"),("2D", "B_y"),("2D", "B_z"),("2D", "B_tot"),
-              ("3D", "B_x"),("3D", "B_y"),("3D", "B_z"),("3D", "B_tot") """
-
-""" ("2D", "v_y"),("2D", "v_z"),("2D", "v_tot"),
-              ("3D", "v_y"),("3D", "v_z"),("3D", "v_tot"),
-              ("2D", "J_y"),("2D", "J_y"),("3D", "J_y"),("3D", "J_z"),
-              ("fourier", "B_y"),("fourier", "B_z") """
 
 # Turn list into list of AnimationSpecs objects
 
 for i, object in enumerate(animations):
-    animations[i] = AnimationSpecs(object[0], object[1], f"{def_beginning}_{object[1]}_{object[0]}{def_end}", bulkfile_number, bulkpath)
+    if object[0] == "fourier":
+        animations[i] = AnimationSpecs(object[0], object[1], f"{def_beginning}_{object[1]}_{object[0]}{def_end}", bulkfile_number, bulkpath, object[2])
+    else:
+        animations[i] = AnimationSpecs(object[0], object[1], f"{def_beginning}_{object[1]}_{object[0]}{def_end}", bulkfile_number, bulkpath, "pass")
 
 
 # Launch a separate process for each AnimationSpecs object

@@ -18,7 +18,7 @@ translate = {"B_x":("vg_b_vol", "x", 1e-9, "nT"),
 
 # Defining AnimationSpecs object and checking instructions
 class AnimationSpecs():
-    def __init__(self, animation_type, variable, name, bulkfile_n, bulkpath):
+    def __init__(self, animation_type, variable, name, bulkfile_n, bulkpath, fourier_spec):
         if animation_type not in ["3D", "2D", "fourier"]:
             print("animation_type defined incorrectly")
             sys.exit(1)
@@ -31,6 +31,24 @@ class AnimationSpecs():
             print("filetype defined incorrectly")
             sys.exit(1)
 
+        if animation_type == "fourier":
+            if fourier_spec[0] == "x" or fourier_spec == "y":
+                self.fourier_type = "princpile"
+                self.fourier_direc = fourier_spec[0]
+                self.fourier_loc = fourier_spec[1]
+            elif fourier_spec[0] == "diag":
+                self.fourier_type = "diag"
+                self.fourier_direc = fourier_spec[1]
+            elif fourier_spec[0] == "trace":
+                self.fourier_type = "trace"
+                self.fourier_direc_1 = fourier_spec[1]
+                self.fourier_direc_2 = fourier_spec[2]
+            elif fourier_spec[0] == "trace_diag":
+                self.fourier_type = "trace_diag"
+            else:
+                print("fourier spec defined incorrectly")
+                sys.exit(1)
+
         self.animation_type = animation_type
         self.variable_name = variable
         self.variable = translate[variable][0]
@@ -40,3 +58,4 @@ class AnimationSpecs():
         self.name = name
         self.bulkfile_n = bulkfile_n
         self.bulkpath = bulkpath
+        
