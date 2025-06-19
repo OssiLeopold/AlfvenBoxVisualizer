@@ -71,8 +71,9 @@ class AnimationEngine:
 
         p = []
         p.append(ax.plot( 2*np.pi * spatial_freq[:N//2], np.abs(value_ft[:N//2])))
-        p.append(ax.plot(2*np.pi * spatial_freq[:N//2], 10**(-20) * (2*np.pi*spatial_freq[:N//2])**(-2), label = "k**(-2)"))
-        p.append(ax.plot(2*np.pi * spatial_freq[:N//2], 10**(-18) * (2*np.pi*spatial_freq[:N//2])**(-5/3), label = "k**(-5/3)"))
+        spatial_freq_for_curve = np.delete(spatial_freq,0)
+        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2], 10**(-20) * (2*np.pi*spatial_freq_for_curve[:N//2])**(-2), label = "k**(-2)"))
+        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2], 10**(-18) * (2*np.pi*spatial_freq_for_curve[:N//2])**(-5/3), label = "k**(-5/3)"))
 
         self.p = p
         self.ax = ax
