@@ -8,10 +8,10 @@ import analysator as pt
 import numpy as np
 
 # Set path to simulation bulkfiles
-bulkpath = "/home/rxelmer/Documents/turso/bulks/sim11/"
+bulkpath = "/home/rxelmer/Documents/turso/bulks/sim14/"
 
 # Enter number of frames to be animated, define as None for all files
-bulkfile_number = 10
+bulkfile_number = 100
 
 # Define what animations are to be produced
 # Has to be in the from of a tuple, e.g: ("<animation type>", "<variable_component>", "<fourier spesific>")
@@ -23,12 +23,12 @@ bulkfile_number = 10
 #                   Enter 2 if you want NW-SW.
 # fourier_spesific: ("trace", <0-1>, <0-1>) -> If you want trace PSD.
 #                   First number for x slice y-coord and second number for y slice x-coord.
-# fourier_spesigic: ("trace_diag") -> for trace PSD for diag directions.
+# fourier_spesific: ("trace_diag") -> for trace PSD for diag directions.
  
-def_beginning = "TurbulenceBoxPlots/sim11_anim/sim11"
+def_beginning = "TurbulenceBoxPlots/sim14_anim/sim14"
 def_end = ".mp4"
 animations = [
-              ("2D", "v_y")
+              ("fourier", "B_y", ("diag", 2))
               ]
 
 """ ("fourier", "B_x"),("fourier", "B_y"),("fourier", "B_z") """

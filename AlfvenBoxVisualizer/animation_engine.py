@@ -43,9 +43,19 @@ class AnimationEngine:
             self.animation_3D()
 
         elif self.object.animation_type == "fourier":
-            self.animation_fourier()
+            if self.object.fourier_type == "princpile":
+                self.animation_principle()
 
-    def animation_fourier(self):
+            elif self.object.fourier_type == "diag":
+                self.animation_diag()
+
+            elif self.object.fourier_type == "trace":
+                self.animation_trace()
+
+            elif self.object.fourier_type == "trace_diag":
+                self.animation_trace_diag()
+
+    def animation_principle(self):
         vlsvobj = self.vlsvobj
         object = self.object
         cellids = vlsvobj.read_variable("CellID")
@@ -55,21 +65,25 @@ class AnimationEngine:
         ax = fig.add_subplot()
         
         value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
-        value_x_direc_mesh = value.reshape(-1,100)
-        value_y_direc_mesh = value_x_direc_mesh.T
 
-        # Take Fourier transfrom from a slice in the middle in both directions
-        value_ft_x = sp.fft.fft(value_x_direc_mesh[50])
-        value_ft_y = sp.fft.fft(value_y_direc_mesh[50])
+        if object.fourier_direc == "x":
+            value_mesh = value.reshape(-1,100)
+        elif object.fourier_direc == "y":
+            value_mesh = value.reshape(-1,100)
+            value_mesh = value_mesh.T
 
-        # Average of the two in both directions
-        value_ft = value_ft_x + value_ft_y
+        # Take Fourier transfrom from a slice in the specified location
+        value_ft = sp.fft.fft(value_mesh[int(N * float(object.fourier_loc))])
 
-        # Define spatial frequency. Delete first element due to zero value -> whould lead to infinite wavelength
+        # Define spatial frequency
         spatial_freq = sp.fft.fftfreq(N, np.diff(self.x_raw[0:N])[0])
+        self.spatial_freq = spatial_freq
 
+        # Define artists
         p = []
         p.append(ax.plot( 2*np.pi * spatial_freq[:N//2], np.abs(value_ft[:N//2])))
+
+        # Define power spectrum curves. First element of spatial_freq deleted due to singularity
         spatial_freq_for_curve = np.delete(spatial_freq,0)
         p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], 10**(-20) * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-2), label = "k**(-2)"))
         p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], 10**(-18) * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-5/3), label = "k**(-5/3)"))
@@ -80,6 +94,7 @@ class AnimationEngine:
         ax.set_title(f"Fourier transform of {object.variable_name}")
         ax.set_xlabel("k")
         ax.set_ylabel("Not quite sure")
+
         ax.set_ylim(1e-11,1e-7)
         for i in range(1,10):
             ax.axvline(x = 2 * np.pi / (1.5*10**7 / i), lw = 0.5)
@@ -90,13 +105,13 @@ class AnimationEngine:
 
         self.timelabel = ax.text(max(spatial_freq), max(np.abs(value_ft))*1.01, "")
 
-        anim = animation.FuncAnimation(fig, self.update_fourier, frames = object.bulkfile_n + 1, interval = 20)
+        anim = animation.FuncAnimation(fig, self.update_princpile, frames = object.bulkfile_n + 1, interval = 20)
         
         writer = FFMpegWriter(fps=5)
         anim.save(object.name, writer = writer)
         plt.close()
 
-    def update_fourier(self, frame):
+    def update_princpile(self, frame):
         N = int(self.x_length)
         object = self.object
         vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(frame).zfill(7)}.vlsv")
@@ -106,17 +121,107 @@ class AnimationEngine:
         self.timelabel.set_text(f"{time:.1f}s")
 
         value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
-        value_x_direc_mesh = value.reshape(-1,100)
-        value_y_direc_mesh = value_x_direc_mesh.T
+        if object.fourier_direc == "x":
+            value_mesh = value.reshape(-1,100)
+        elif object.fourier_direc == "y":
+            value_mesh = value.reshape(-1,100)
+            value_mesh = value_mesh.T
 
-        value_ft_x = sp.fft.fft(value_x_direc_mesh[50])
-        value_ft_y = sp.fft.fft(value_y_direc_mesh[50])
-    
-        value_ft = value_ft_x + value_ft_y
+        value_ft = sp.fft.fft(value_mesh[int(N * float(object.fourier_loc))])
 
-        spatial_freq = sp.fft.fftfreq(N, np.diff(self.x_raw[0:N])[0])
+        self.p[0][0].set_data(2*np.pi*self.spatial_freq[:N//2], np.abs(value_ft[:N//2]))
 
-        self.p[0][0].set_data(2*np.pi*spatial_freq[:N//2-1], np.abs(value_ft[:N//2-1]))
+        return self.p
+
+    def animation_diag(self):
+        vlsvobj = self.vlsvobj
+        object = self.object
+        cellids = vlsvobj.read_variable("CellID")
+        N = int(self.x_length)
+
+        fig = plt.figure()
+        ax = fig.add_subplot()
+        
+        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
+
+        value_mesh = value.reshape(-1,100)
+
+        diag_value_mesh = []
+
+        if object.fourier_direc == 1:
+            for i in range(N):
+                diag_value_mesh.append(value_mesh[i][i])
+        elif object.fourier_direc == 2:
+            for i in range(N):
+                diag_value_mesh.append(value_mesh[-i-1][i])
+
+        print(diag_value_mesh)
+
+        # Take Fourier transfrom from a slice in the specified location
+        value_ft = sp.fft.fft(diag_value_mesh)
+
+        # Define spatial frequency
+        spatial_freq = sp.fft.fftfreq(N, np.sqrt(2) * np.diff(self.x_raw[0:N])[0])
+        self.spatial_freq = spatial_freq
+
+        # Define artists
+        p = []
+        p.append(ax.plot( 2*np.pi * spatial_freq[:N//2], np.abs(value_ft[:N//2])))
+
+        # Define power spectrum curves. First element of spatial_freq deleted due to singularity
+        spatial_freq_for_curve = np.delete(spatial_freq,0)
+        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], 10**(-20) * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-2), label = "k**(-2)"))
+        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], 10**(-18) * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-5/3), label = "k**(-5/3)"))
+
+        self.p = p
+        self.ax = ax
+
+        ax.set_title(f"Fourier transform of {object.variable_name}")
+        ax.set_xlabel("k")
+        ax.set_ylabel("Not quite sure")
+
+        ax.set_ylim(1e-11,1e-7)
+        for i in range(1,10):
+            ax.axvline(x = 2 * np.pi / (1.5*10**7 / i), lw = 0.5)
+        ax.set_yscale("log")
+        ax.set_xscale("log")
+        ax.grid(axis="y")
+        ax.legend()
+
+        self.timelabel = ax.text(max(spatial_freq), max(np.abs(value_ft))*1.01, "")
+
+        anim = animation.FuncAnimation(fig, self.update_diag, frames = object.bulkfile_n + 1, interval = 20)
+        
+        writer = FFMpegWriter(fps=5)
+        anim.save(object.name, writer = writer)
+        plt.close()
+
+    def update_diag(self, frame):
+        N = int(self.x_length)
+        object = self.object
+        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(frame).zfill(7)}.vlsv")
+        cellids = vlsvobj.read_variable("CellID")
+
+        time = vlsvobj.read_parameter("time")
+        self.timelabel.set_text(f"{time:.1f}s")
+
+        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
+
+        value_mesh = value.reshape(-1,100)
+
+        diag_value_mesh = []
+
+        if object.fourier_direc == 1:
+            for i in range(N):
+                diag_value_mesh.append(value_mesh[i][i])
+        elif object.fourier_direc == 2:
+            for i in range(N):
+                diag_value_mesh.append(value_mesh[-i-1][i])
+
+        # Take Fourier transfrom from a slice in the specified location
+        value_ft = sp.fft.fft(diag_value_mesh)
+
+        self.p[0][0].set_data(2*np.pi*self.spatial_freq[:N//2], np.abs(value_ft[:N//2]))
 
         return self.p
 
