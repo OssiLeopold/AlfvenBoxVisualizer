@@ -28,7 +28,7 @@ bulkfile_number = 100
 def_beginning = "TurbulenceBoxPlots/sim14_anim/sim14"
 def_end = ".mp4"
 animations = [
-              ("fourier", "B_y", ("diag", 2))
+              ("fourier", "B_y", ["trace_diag"])
               ]
 
 """ ("fourier", "B_x"),("fourier", "B_y"),("fourier", "B_z") """
@@ -42,7 +42,7 @@ animations = [
 
 for i, object in enumerate(animations):
     if object[0] == "fourier":
-        animations[i] = AnimationSpecs(object[0], object[1], f"{def_beginning}_{object[1]}_{object[0]}{def_end}", bulkfile_number, bulkpath, object[2])
+        animations[i] = AnimationSpecs(object[0], object[1], f"{def_beginning}_{object[1]}_{object[0]}_{object[2][0]}_{def_end}", bulkfile_number, bulkpath, object[2])
     else:
         animations[i] = AnimationSpecs(object[0], object[1], f"{def_beginning}_{object[1]}_{object[0]}{def_end}", bulkfile_number, bulkpath, "pass")
 

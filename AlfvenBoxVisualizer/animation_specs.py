@@ -41,8 +41,8 @@ class AnimationSpecs():
                 self.fourier_direc = fourier_spec[1]
             elif fourier_spec[0] == "trace":
                 self.fourier_type = "trace"
-                self.fourier_direc_x = fourier_spec[1]
-                self.fourier_direc_y = fourier_spec[2]
+                self.fourier_loc_x = fourier_spec[1]
+                self.fourier_loc_y = fourier_spec[2]
             elif fourier_spec[0] == "trace_diag":
                 self.fourier_type = "trace_diag"
             else:

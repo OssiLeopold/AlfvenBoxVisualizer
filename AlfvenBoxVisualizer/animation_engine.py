@@ -155,8 +155,6 @@ class AnimationEngine:
             for i in range(N):
                 diag_value_mesh.append(value_mesh[-i-1][i])
 
-        print(diag_value_mesh)
-
         # Take Fourier transfrom from a slice in the specified location
         value_ft = sp.fft.fft(diag_value_mesh)
 
@@ -222,6 +220,172 @@ class AnimationEngine:
         value_ft = sp.fft.fft(diag_value_mesh)
 
         self.p[0][0].set_data(2*np.pi*self.spatial_freq[:N//2], np.abs(value_ft[:N//2]))
+
+        return self.p
+    
+    def animation_trace(self):
+        vlsvobj = self.vlsvobj
+        object = self.object
+        cellids = vlsvobj.read_variable("CellID")
+        N = int(self.x_length)
+
+        fig = plt.figure()
+        ax = fig.add_subplot()
+        
+        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
+
+        value_mesh_x = value.reshape(-1,100)
+        value_mesh_y = value_mesh_x.T
+
+        # Take Fourier transfrom from a slice in the specified location
+        value_ft_x = sp.fft.fft(value_mesh_x[int(N * float(object.fourier_loc_x))])
+        value_ft_y = sp.fft.fft(value_mesh_y[int(N * float(object.fourier_loc_y))])
+        trace_ft = value_ft_x + value_ft_y
+
+        # Define spatial frequency
+        spatial_freq = sp.fft.fftfreq(N, np.diff(self.x_raw[0:N])[0])
+        self.spatial_freq = spatial_freq
+
+        # Define artists
+        p = []
+        p.append(ax.plot( 2*np.pi * spatial_freq[:N//2], np.abs(trace_ft[:N//2])))
+
+        # Define power spectrum curves. First element of spatial_freq deleted due to singularity
+        spatial_freq_for_curve = np.delete(spatial_freq,0)
+        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], 10**(-20) * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-2), label = "k**(-2)"))
+        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], 10**(-18) * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-5/3), label = "k**(-5/3)"))
+
+        self.p = p
+        self.ax = ax
+
+        ax.set_title(f"Fourier transform of {object.variable_name}")
+        ax.set_xlabel("k")
+        ax.set_ylabel("Not quite sure")
+
+        ax.set_ylim(1e-11,1e-7)
+        for i in range(1,10):
+            ax.axvline(x = 2 * np.pi / (1.5*10**7 / i), lw = 0.5)
+        ax.set_yscale("log")
+        ax.set_xscale("log")
+        ax.grid(axis="y")
+        ax.legend()
+
+        self.timelabel = ax.text(max(spatial_freq), max(np.abs(trace_ft))*1.01, "")
+
+        anim = animation.FuncAnimation(fig, self.update_trace, frames = object.bulkfile_n + 1, interval = 20)
+        
+        writer = FFMpegWriter(fps=5)
+        anim.save(object.name, writer = writer)
+        plt.close()
+
+    def update_trace(self, frame):
+        N = int(self.x_length)
+        object = self.object
+        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(frame).zfill(7)}.vlsv")
+        cellids = vlsvobj.read_variable("CellID")
+
+        time = vlsvobj.read_parameter("time")
+        self.timelabel.set_text(f"{time:.1f}s")
+
+        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
+
+        value_mesh_x = value.reshape(-1,100)
+        value_mesh_y = value_mesh_x.T
+
+        # Take Fourier transfroms from a slice in the specified location
+        value_ft_x = sp.fft.fft(value_mesh_x[int(N * float(object.fourier_loc_x))])
+        value_ft_y = sp.fft.fft(value_mesh_y[int(N * float(object.fourier_loc_y))])
+        trace_ft = value_ft_x + value_ft_y
+
+        self.p[0][0].set_data(2*np.pi*self.spatial_freq[:N//2], np.abs(trace_ft[:N//2]))
+
+        return self.p
+    
+    def animation_trace_diag(self):
+        vlsvobj = self.vlsvobj
+        object = self.object
+        cellids = vlsvobj.read_variable("CellID")
+        N = int(self.x_length)
+
+        fig = plt.figure()
+        ax = fig.add_subplot()
+        
+        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
+        value_mesh = value.reshape(-1,100)
+
+        diag_value_SW = []
+        diag_value_NW = []
+
+        for i in range(N):
+            diag_value_SW.append(value_mesh[i][i])
+            diag_value_NW.append(value_mesh[-i-1][i])
+
+        # Take Fourier transfrom from a slice in the specified location
+        value_ft_SW = sp.fft.fft(diag_value_SW)
+        value_ft_NW = sp.fft.fft(diag_value_NW)
+        trace_ft = value_ft_SW + value_ft_NW
+
+        # Define spatial frequency
+        spatial_freq = sp.fft.fftfreq(N, np.sqrt(2) * np.diff(self.x_raw[0:N])[0])
+        self.spatial_freq = spatial_freq
+
+        # Define artists
+        p = []
+        p.append(ax.plot( 2*np.pi * spatial_freq[:N//2], np.abs(trace_ft[:N//2])))
+
+        # Define power spectrum curves. First element of spatial_freq deleted due to singularity
+        spatial_freq_for_curve = np.delete(spatial_freq,0)
+        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], 10**(-20) * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-2), label = "k**(-2)"))
+        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], 10**(-18) * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-5/3), label = "k**(-5/3)"))
+
+        self.p = p
+        self.ax = ax
+
+        ax.set_title(f"Fourier transform of {object.variable_name}")
+        ax.set_xlabel("k")
+        ax.set_ylabel("Not quite sure")
+
+        ax.set_ylim(1e-11,1e-7)
+        for i in range(1,10):
+            ax.axvline(x = 2 * np.pi / (1.5*10**7 / i), lw = 0.5)
+        ax.set_yscale("log")
+        ax.set_xscale("log")
+        ax.grid(axis="y")
+        ax.legend()
+
+        self.timelabel = ax.text(max(spatial_freq), max(np.abs(trace_ft))*1.01, "")
+
+        anim = animation.FuncAnimation(fig, self.update_trace_diag, frames = object.bulkfile_n + 1, interval = 20)
+        
+        writer = FFMpegWriter(fps=5)
+        anim.save(object.name, writer = writer)
+        plt.close()
+
+    def update_trace_diag(self, frame):
+        N = int(self.x_length)
+        object = self.object
+        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(frame).zfill(7)}.vlsv")
+        cellids = vlsvobj.read_variable("CellID")
+
+        time = vlsvobj.read_parameter("time")
+        self.timelabel.set_text(f"{time:.1f}s")
+
+        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
+        value_mesh = value.reshape(-1,100)
+
+        diag_value_SW = []
+        diag_value_NW = []
+
+        for i in range(N):
+            diag_value_SW.append(value_mesh[i][i])
+            diag_value_NW.append(value_mesh[-i-1][i])
+
+        # Take Fourier transfrom from a slice in the specified location
+        value_ft_SW = sp.fft.fft(diag_value_SW)
+        value_ft_NW = sp.fft.fft(diag_value_NW)
+        trace_ft = value_ft_SW + value_ft_NW
+
+        self.p[0][0].set_data(2*np.pi*self.spatial_freq[:N//2], np.abs(trace_ft[:N//2]))
 
         return self.p
 
