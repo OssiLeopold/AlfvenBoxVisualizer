@@ -11,7 +11,7 @@ import numpy as np
 bulkpath = "/home/rxelmer/Documents/turso/bulks/sim14/"
 
 # Enter number of frames to be animated, define as None for all files
-bulkfile_number = 250
+bulkfile_number = 10
 
 # Define what animations are to be produced
 # Has to be in the from of a tuple, e.g: ("<animation type>", "<variable_component>", "<fourier spesific>")
@@ -28,7 +28,7 @@ bulkfile_number = 250
 def_beginning = "TurbulenceBoxPlots/simtest/simtest"
 def_end = ".mp4"
 animations = [
-              ("fourier", "v_x", ("x","0.5")),("fourier", "v_y", ("x","0.5")),("fourier", "v_z", ("x","0.5")),("fourier", "B_x", ("x","0.5")),("fourier", "B_y", ("x","0.5")),("fourier", "B_z", ("x","0.5"))
+                ("3D", "B_x")
               ]
 
 """ ("fourier", "v_x", ("x","0.5")),("fourier", "v_y", ("x","0.5")),("fourier", "v_z", ("x","0.5")),("fourier", "B_x", ("x","0.5")),("fourier", "B_y", ("x","0.5")),("fourier", "B_z", ("x","0.5")) """

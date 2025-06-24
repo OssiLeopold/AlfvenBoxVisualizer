@@ -28,7 +28,8 @@ class AnimationEngine:
         # Used in plotting
         x = np.array([vlsvobj.get_cell_coordinates(coord)[0] for coord in np.sort(self.cellids)]) / R_E
         y = np.array([vlsvobj.get_cell_coordinates(coord)[1] for coord in np.sort(self.cellids)]) / R_E
-        x_raw = np.array([vlsvobj.get_cell_coordinates(coord)[0] for coord in np.sort(self.cellids)])
+        x_raw = np.array([vlsvobj.get_cell_coordinates(coord)[0] for coord in np.sort(self.cellids)]) # Used for fourier spatial frequency
+        # Bring to class scope
         self.x_mesh = x.reshape(-1,self.x_length)
         self.y_mesh = y.reshape(-1,self.x_length)
         self.x_raw = x_raw
@@ -56,15 +57,14 @@ class AnimationEngine:
                 self.animation_trace_diag()
 
     def animation_principle(self):
-        vlsvobj = self.vlsvobj
         object = self.object
-        cellids = vlsvobj.read_variable("CellID")
+        cellids = self.vlsvobj.read_variable("CellID")
         N = int(self.x_length)
 
         fig = plt.figure()
         ax = fig.add_subplot()
         
-        value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
+        value = np.array(self.vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
 
         if object.fourier_direc == "x":
             value_mesh = value.reshape(-1,100)
@@ -98,7 +98,6 @@ class AnimationEngine:
                 value_mesh_check = value_mesh_check.T
             max_check.extend(sp.fft.fft(value_mesh_check[int(N * float(object.fourier_loc))])[1:N//2])
         Max = max(np.abs(max_check))
-        print(Max)
 
         a = Max * (10**(-6))**2
         b = Max * (10**(-6))**(5/3)
@@ -186,7 +185,21 @@ class AnimationEngine:
 
         # Define power spectrum curves. First element of spatial_freq deleted due to singularity
         spatial_freq_for_curve = np.delete(spatial_freq,0)
-        Max = max(np.abs(value_ft))
+        max_check = []
+        for i in range(object.bulkfile_n):
+            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(i).zfill(7)}.vlsv")
+            cellids = vlsvobj.read_variable("CellID")
+            diag_value_mesh_check = []
+            value_check = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
+            value_check_mesh = value_check.reshape(-1,100)
+            if object.fourier_direc == 1:
+                for j in range(N):
+                    diag_value_mesh_check.append(value_check_mesh[j][j])
+            elif object.fourier_direc == 2:
+                for j in range(N):
+                    diag_value_mesh_check.append(value_check_mesh[-j-1][j])
+            max_check.extend(sp.fft.fft(diag_value_mesh_check)[1:N//2])
+        Max = max(np.abs(max_check))
         a = Max * (10**(-6))**2
         b = Max * (10**(-6))**(5/3)
 
@@ -274,7 +287,17 @@ class AnimationEngine:
 
         # Define power spectrum curves. First element of spatial_freq deleted due to singularity
         spatial_freq_for_curve = np.delete(spatial_freq,0)
-        Max = max(np.abs(value_ft_x)+np.abs(value_ft_y))
+        max_check = []
+        for i in range(object.bulkfile_n):
+            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(i).zfill(7)}.vlsv")
+            cellids = vlsvobj.read_variable("CellID")
+            value_check = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
+            value_mesh_check_x = value_check.reshape(-1,100)
+            value_mesh_check_y = value_mesh_check_x.T
+            value_ft_check_x = sp.fft.fft(value_mesh_check_x[int(N * float(object.fourier_loc_x))])
+            value_ft_check_y = sp.fft.fft(value_mesh_check_y[int(N * float(object.fourier_loc_y))])
+            max_check.extend((value_ft_check_x + value_ft_check_y)[1:N//2])
+        Max = max(np.abs(max_check))
         a = Max * (10**(-6))**2
         b = Max * (10**(-6))**(5/3)
 
@@ -361,7 +384,21 @@ class AnimationEngine:
 
         # Define power spectrum curves. First element of spatial_freq deleted due to singularity
         spatial_freq_for_curve = np.delete(spatial_freq,0)
-        Max = max(np.abs(value_ft_SW)+np.abs(value_ft_NW))
+        max_check = []
+        for i in range(object.bulkfile_n):
+            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(i).zfill(7)}.vlsv")
+            cellids = vlsvobj.read_variable("CellID")
+            value_check = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
+            value_check_mesh = value_check.reshape(-1,100)
+            diag_value_check_SW = []
+            diag_value_check_NW = []
+            for j in range(N):
+                diag_value_check_SW.append(value_check_mesh[j][j])
+                diag_value_check_NW.append(value_check_mesh[-j-1][j])
+            diag_value_check_SW_ft = sp.fft.fft(diag_value_check_SW)
+            diag_value_check_NW_ft = sp.fft.fft(diag_value_check_NW)
+            max_check.extend((diag_value_check_SW_ft + diag_value_check_NW_ft)[1:N//2])
+        Max = max(np.abs(max_check))
         a = Max * (10**(-6))**2
         b = Max * (10**(-6))**(5/3)
 
@@ -460,7 +497,7 @@ class AnimationEngine:
         value = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()]) / object.unit
         value_mesh = value.reshape(-1, self.x_length)
         p.append(ax.plot_surface(self.x_mesh, self.y_mesh, value_mesh, color = COLORS[0]))
-    
+
         self.p = p
         self.ax = ax
 
@@ -499,6 +536,9 @@ class AnimationEngine:
 
         return self.p
     
+    """ def PDF(self): """
+
+
     def def_min_max(self):
         object = self.object
         values = []

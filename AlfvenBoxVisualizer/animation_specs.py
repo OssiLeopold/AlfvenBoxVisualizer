@@ -21,14 +21,17 @@ class AnimationSpecs():
     def __init__(self, animation_type, variable, name, bulkfile_n, bulkpath, fourier_spec):
         if animation_type not in ["3D", "2D", "fourier"]:
             print("animation_type defined incorrectly")
+            print(animation_type, variable, name, bulkfile_n, bulkpath, fourier_spec)
             sys.exit(1)
 
         if variable not in ["B_y", "B_z", "B_x", "dB_y/dx", "dB_z/dx", "B_tot", "J_x", "J_y", "J_z", "v_y", "v_z", "v_x", "v_tot", "rho"]:
             print("variable defined incorrectly")
+            print(animation_type, variable, name, bulkfile_n, bulkpath, fourier_spec)
             sys.exit(1)
 
         if name[-3:] not in ["gif", "mp4"]:
             print("filetype defined incorrectly")
+            print(animation_type, variable, name, bulkfile_n, bulkpath, fourier_spec)
             sys.exit(1)
 
         if animation_type == "fourier":
@@ -43,10 +46,11 @@ class AnimationSpecs():
                 self.fourier_type = "trace"
                 self.fourier_loc_x = fourier_spec[1]
                 self.fourier_loc_y = fourier_spec[2]
-            elif fourier_spec[0] == "trace_diag":
+            elif fourier_spec == "trace_diag":
                 self.fourier_type = "trace_diag"
             else:
                 print("fourier spec defined incorrectly")
+                print(animation_type, variable, name, bulkfile_n, bulkpath, fourier_spec)
                 sys.exit(1)
 
         self.animation_type = animation_type
