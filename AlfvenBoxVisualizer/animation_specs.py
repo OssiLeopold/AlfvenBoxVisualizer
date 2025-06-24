@@ -14,7 +14,7 @@ translate = {"B_x":("vg_b_vol", "x", 1e-9, "nT"),
                 "v_y":("proton/vg_v", "y", 1e3, "km/s"),
                 "v_z":("proton/vg_v", "z", 1e3, "km/s"),
                 "v_tot":("proton/vg_v", "magnitude", 1e3, "km/s"),
-                "rho":("proton/vg_rho", "pass", 1e6, "n/cell")}
+                "rho":("proton/vg_rho", None, 1e6, "n/cell")}
 
 # Defining AnimationSpecs object and checking instructions
 class AnimationSpecs():

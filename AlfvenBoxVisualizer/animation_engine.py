@@ -85,8 +85,26 @@ class AnimationEngine:
 
         # Define power spectrum curves. First element of spatial_freq deleted due to singularity
         spatial_freq_for_curve = np.delete(spatial_freq,0)
-        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], 10**(-20) * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-2), label = "k**(-2)"))
-        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], 10**(-18) * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-5/3), label = "k**(-5/3)"))
+
+        max_check = []
+        for i in range(object.bulkfile_n):
+            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(i).zfill(7)}.vlsv")
+            cellids = vlsvobj.read_variable("CellID")
+            value_check = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
+            if object.fourier_direc == "x":
+                value_mesh_check = value_check.reshape(-1,100)
+            elif object.fourier_direc == "y":
+                value_mesh_check = value_check.reshape(-1,100)
+                value_mesh_check = value_mesh_check.T
+            max_check.extend(sp.fft.fft(value_mesh_check[int(N * float(object.fourier_loc))])[1:N//2])
+        Max = max(np.abs(max_check))
+        print(Max)
+
+        a = Max * (10**(-6))**2
+        b = Max * (10**(-6))**(5/3)
+
+        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], a * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-2), label = "k**(-2)"))
+        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], b * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-5/3), label = "k**(-5/3)"))
 
         self.p = p
         self.ax = ax
@@ -95,7 +113,7 @@ class AnimationEngine:
         ax.set_xlabel("k")
         ax.set_ylabel("Not quite sure")
 
-        ax.set_ylim(1e-11,1e-7)
+        ax.set_ylim(Max*10**(-3),Max*10)
         for i in range(1,10):
             ax.axvline(x = 2 * np.pi / (1.5*10**7 / i), lw = 0.5)
         ax.set_yscale("log")
@@ -168,8 +186,12 @@ class AnimationEngine:
 
         # Define power spectrum curves. First element of spatial_freq deleted due to singularity
         spatial_freq_for_curve = np.delete(spatial_freq,0)
-        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], 10**(-20) * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-2), label = "k**(-2)"))
-        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], 10**(-18) * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-5/3), label = "k**(-5/3)"))
+        Max = max(np.abs(value_ft))
+        a = Max * (10**(-6))**2
+        b = Max * (10**(-6))**(5/3)
+
+        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], a * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-2), label = "k**(-2)"))
+        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], b * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-5/3), label = "k**(-5/3)"))
 
         self.p = p
         self.ax = ax
@@ -178,7 +200,7 @@ class AnimationEngine:
         ax.set_xlabel("k")
         ax.set_ylabel("Not quite sure")
 
-        ax.set_ylim(1e-11,1e-7)
+        ax.set_ylim(Max*10**(-3),Max*10)
         for i in range(1,10):
             ax.axvline(x = 2 * np.pi / (1.5*10**7 / i), lw = 0.5)
         ax.set_yscale("log")
@@ -252,8 +274,12 @@ class AnimationEngine:
 
         # Define power spectrum curves. First element of spatial_freq deleted due to singularity
         spatial_freq_for_curve = np.delete(spatial_freq,0)
-        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], 10**(-20) * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-2), label = "k**(-2)"))
-        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], 10**(-18) * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-5/3), label = "k**(-5/3)"))
+        Max = max(np.abs(value_ft_x)+np.abs(value_ft_y))
+        a = Max * (10**(-6))**2
+        b = Max * (10**(-6))**(5/3)
+
+        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], a * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-2), label = "k**(-2)"))
+        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], b * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-5/3), label = "k**(-5/3)"))
 
         self.p = p
         self.ax = ax
@@ -262,7 +288,7 @@ class AnimationEngine:
         ax.set_xlabel("k")
         ax.set_ylabel("Not quite sure")
 
-        ax.set_ylim(1e-11,1e-7)
+        ax.set_ylim(Max*10**(-3),Max*10)
         for i in range(1,10):
             ax.axvline(x = 2 * np.pi / (1.5*10**7 / i), lw = 0.5)
         ax.set_yscale("log")
@@ -335,8 +361,12 @@ class AnimationEngine:
 
         # Define power spectrum curves. First element of spatial_freq deleted due to singularity
         spatial_freq_for_curve = np.delete(spatial_freq,0)
-        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], 10**(-20) * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-2), label = "k**(-2)"))
-        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], 10**(-18) * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-5/3), label = "k**(-5/3)"))
+        Max = max(np.abs(value_ft_SW)+np.abs(value_ft_NW))
+        a = Max * (10**(-6))**2
+        b = Max * (10**(-6))**(5/3)
+
+        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], a * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-2), label = "k**(-2)"))
+        p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], b * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-5/3), label = "k**(-5/3)"))
 
         self.p = p
         self.ax = ax
@@ -345,7 +375,7 @@ class AnimationEngine:
         ax.set_xlabel("k")
         ax.set_ylabel("Not quite sure")
 
-        ax.set_ylim(1e-11,1e-7)
+        ax.set_ylim(Max*10**(-3),Max*10)
         for i in range(1,10):
             ax.axvline(x = 2 * np.pi / (1.5*10**7 / i), lw = 0.5)
         ax.set_yscale("log")
@@ -475,6 +505,6 @@ class AnimationEngine:
         for i in range(object.bulkfile_n):
             vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(i).zfill(7)}.vlsv")   
             values.extend(
-                vlsvobj.read_variable(object.variable,operator=object.component))
+                vlsvobj.read_variable(object.variable,operator=f"{object.component if object.component is not None else "pass"}"))
         return min(values), max(values)
     
