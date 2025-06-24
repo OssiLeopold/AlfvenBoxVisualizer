@@ -84,8 +84,8 @@ class AnimationEngine:
 
         # Find maximum for better plotting
         max_check = []
-        for i in range(object.bulkfile_n):
-            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(i).zfill(7)}.vlsv")
+        for i in range(object.bulkfile_n + 1 - object.start_frame):
+            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(i + object.start_frame).zfill(7)}.vlsv")
             cellids = vlsvobj.read_variable("CellID")
             value_check = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
             if object.fourier_direc == "x":
@@ -122,7 +122,7 @@ class AnimationEngine:
 
         self.timelabel = ax.text(max(spatial_freq), max(np.abs(value_ft))*1.01, "")
 
-        anim = animation.FuncAnimation(fig, self.update_princpile, frames = object.bulkfile_n + 1, interval = 20)
+        anim = animation.FuncAnimation(fig, self.update_princpile, frames = object.bulkfile_n + 1 - object.start_frame, interval = 20)
         
         writer = FFMpegWriter(fps=5)
         anim.save(object.name, writer = writer)
@@ -131,7 +131,7 @@ class AnimationEngine:
     def update_princpile(self, frame):
         N = int(self.x_length)
         object = self.object
-        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(frame).zfill(7)}.vlsv")
+        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(frame + object.start_frame).zfill(7)}.vlsv")
         cellids = vlsvobj.read_variable("CellID")
 
         time = vlsvobj.read_parameter("time")
@@ -186,8 +186,8 @@ class AnimationEngine:
         # Define power spectrum curves. First element of spatial_freq deleted due to singularity
         spatial_freq_for_curve = np.delete(spatial_freq,0)
         max_check = []
-        for i in range(object.bulkfile_n):
-            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(i).zfill(7)}.vlsv")
+        for i in range(object.bulkfile_n + 1 - object.start_frame):
+            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(i + object.start_frame).zfill(7)}.vlsv")
             cellids = vlsvobj.read_variable("CellID")
             diag_value_mesh_check = []
             value_check = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
@@ -223,7 +223,7 @@ class AnimationEngine:
 
         self.timelabel = ax.text(max(spatial_freq), max(np.abs(value_ft))*1.01, "")
 
-        anim = animation.FuncAnimation(fig, self.update_diag, frames = object.bulkfile_n + 1, interval = 20)
+        anim = animation.FuncAnimation(fig, self.update_diag, frames = object.bulkfile_n + 1 - object.start_frame, interval = 20)
         
         writer = FFMpegWriter(fps=5)
         anim.save(object.name, writer = writer)
@@ -232,7 +232,7 @@ class AnimationEngine:
     def update_diag(self, frame):
         N = int(self.x_length)
         object = self.object
-        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(frame).zfill(7)}.vlsv")
+        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(frame + object.start_frame).zfill(7)}.vlsv")
         cellids = vlsvobj.read_variable("CellID")
 
         time = vlsvobj.read_parameter("time")
@@ -288,8 +288,8 @@ class AnimationEngine:
         # Define power spectrum curves. First element of spatial_freq deleted due to singularity
         spatial_freq_for_curve = np.delete(spatial_freq,0)
         max_check = []
-        for i in range(object.bulkfile_n):
-            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(i).zfill(7)}.vlsv")
+        for i in range(object.bulkfile_n + 1 - object.start_frame):
+            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(i + object.start_frame).zfill(7)}.vlsv")
             cellids = vlsvobj.read_variable("CellID")
             value_check = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
             value_mesh_check_x = value_check.reshape(-1,100)
@@ -321,7 +321,7 @@ class AnimationEngine:
 
         self.timelabel = ax.text(max(spatial_freq), max(np.abs(trace_ft))*1.01, "")
 
-        anim = animation.FuncAnimation(fig, self.update_trace, frames = object.bulkfile_n + 1, interval = 20)
+        anim = animation.FuncAnimation(fig, self.update_trace, frames = object.bulkfile_n + 1 - object.start_frame, interval = 20)
         
         writer = FFMpegWriter(fps=5)
         anim.save(object.name, writer = writer)
@@ -330,7 +330,7 @@ class AnimationEngine:
     def update_trace(self, frame):
         N = int(self.x_length)
         object = self.object
-        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(frame).zfill(7)}.vlsv")
+        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(frame + object.start_frame).zfill(7)}.vlsv")
         cellids = vlsvobj.read_variable("CellID")
 
         time = vlsvobj.read_parameter("time")
@@ -385,8 +385,8 @@ class AnimationEngine:
         # Define power spectrum curves. First element of spatial_freq deleted due to singularity
         spatial_freq_for_curve = np.delete(spatial_freq,0)
         max_check = []
-        for i in range(object.bulkfile_n):
-            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(i).zfill(7)}.vlsv")
+        for i in range(object.bulkfile_n + 1 - object.start_frame):
+            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(i + object.start_frame).zfill(7)}.vlsv")
             cellids = vlsvobj.read_variable("CellID")
             value_check = np.array(vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
             value_check_mesh = value_check.reshape(-1,100)
@@ -422,7 +422,7 @@ class AnimationEngine:
 
         self.timelabel = ax.text(max(spatial_freq), max(np.abs(trace_ft))*1.01, "")
 
-        anim = animation.FuncAnimation(fig, self.update_trace_diag, frames = object.bulkfile_n + 1, interval = 20)
+        anim = animation.FuncAnimation(fig, self.update_trace_diag, frames = object.bulkfile_n + 1 - object.start_frame, interval = 20)
         
         writer = FFMpegWriter(fps=5)
         anim.save(object.name, writer = writer)
@@ -431,7 +431,7 @@ class AnimationEngine:
     def update_trace_diag(self, frame):
         N = int(self.x_length)
         object = self.object
-        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(frame).zfill(7)}.vlsv")
+        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(frame + object.start_frame).zfill(7)}.vlsv")
         cellids = vlsvobj.read_variable("CellID")
 
         time = vlsvobj.read_parameter("time")
@@ -469,7 +469,7 @@ class AnimationEngine:
         self.p = [pt.plot.plot_colormap(
             vlsvobj = vlsvobj, var = self.object.variable, operator = self.object.component, axes=self.ax, vmin = self.Min, vmax = self.Max)]
 
-        anim = animation.FuncAnimation(fig, self.update_2D, frames = self.object.bulkfile_n + 1, interval = 20)
+        anim = animation.FuncAnimation(fig, self.update_2D, frames = self.object.bulkfile_n + 1 - self.object.start_frame, interval = 20)
 
         writer = FFMpegWriter(fps=5)
         anim.save(self.object.name, writer = writer)
@@ -478,7 +478,7 @@ class AnimationEngine:
     def update_2D(self, frame):
         self.p.clear()
         # fetch vlsv file
-        vlsvobj = pt.vlsvfile.VlsvReader(self.object.bulkpath + f"bulk.{str(frame).zfill(7)}.vlsv")
+        vlsvobj = pt.vlsvfile.VlsvReader(self.object.bulkpath + f"bulk.{str(frame + self.object.start_frame).zfill(7)}.vlsv")
         pt.plot.plot_colormap(
             vlsvobj = vlsvobj, var = self.object.variable, operator = self.object.component, axes=self.ax, vmin = self.Min, vmax = self.Max, nocb = "No")
         return self.p
@@ -515,7 +515,7 @@ class AnimationEngine:
         ax.set_ylabel("y [RE]")
         self.timelabel = ax.text(self.xmax, self.ymax*1.01, Max*1.01, "")
 
-        anim = animation.FuncAnimation(fig, self.update_3D, frames = object.bulkfile_n + 1, interval = 20)
+        anim = animation.FuncAnimation(fig, self.update_3D, frames = object.bulkfile_n + 1 - object.start_frame, interval = 20)
 
         writer = FFMpegWriter(fps=5)
         anim.save(object.name, writer = writer)
@@ -524,7 +524,7 @@ class AnimationEngine:
     def update_3D(self, frame):
         self.p[0].remove()
         object = self.object
-        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(frame).zfill(7)}.vlsv")  
+        vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(frame + object.start_frame).zfill(7)}.vlsv")  
         cellids = vlsvobj.read_variable("CellID")
 
         time = vlsvobj.read_parameter("time")

@@ -18,7 +18,7 @@ translate = {"B_x":("vg_b_vol", "x", 1e-9, "nT"),
 
 # Defining AnimationSpecs object and checking instructions
 class AnimationSpecs():
-    def __init__(self, animation_type, variable, name, bulkfile_n, bulkpath, fourier_spec):
+    def __init__(self, animation_type, variable, name, bulkfile_n, start_frame, bulkpath, fourier_spec):
         if animation_type not in ["3D", "2D", "fourier"]:
             print("animation_type defined incorrectly")
             print(animation_type, variable, name, bulkfile_n, bulkpath, fourier_spec)
@@ -61,5 +61,6 @@ class AnimationSpecs():
         self.unit_name = translate[variable][3]
         self.name = name
         self.bulkfile_n = bulkfile_n
+        self.start_frame = start_frame
         self.bulkpath = bulkpath
         
