@@ -57,12 +57,11 @@ class AnimationEngine:
                 self.animation_trace_diag()
 
     def animation_principle(self):
-        object = self.object
+        object = self.object # For shorter notation
         cellids = self.vlsvobj.read_variable("CellID")
-        N = int(self.x_length)
+        N = int(self.x_length) # scipy fourier transforms require that np.float -> int
 
-        fig = plt.figure()
-        ax = fig.add_subplot()
+        fig, ax = plt.subplots()
         
         value = np.array(self.vlsvobj.read_variable(object.variable, operator=object.component)[cellids.argsort()])
 
@@ -83,9 +82,7 @@ class AnimationEngine:
         p = []
         p.append(ax.plot( 2*np.pi * spatial_freq[:N//2], np.abs(value_ft[:N//2])))
 
-        # Define power spectrum curves. First element of spatial_freq deleted due to singularity
-        spatial_freq_for_curve = np.delete(spatial_freq,0)
-
+        # Find maximum for better plotting
         max_check = []
         for i in range(object.bulkfile_n):
             vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(i).zfill(7)}.vlsv")
@@ -102,15 +99,18 @@ class AnimationEngine:
         a = Max * (10**(-6))**2
         b = Max * (10**(-6))**(5/3)
 
+        # Define power spectrum curves. First element of spatial_freq deleted due to singularity
+        spatial_freq_for_curve = np.delete(spatial_freq,0)
         p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], a * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-2), label = "k**(-2)"))
         p.append(ax.plot(2*np.pi * spatial_freq_for_curve[:N//2-1], b * (2*np.pi*spatial_freq_for_curve[:N//2-1])**(-5/3), label = "k**(-5/3)"))
 
+        # Bring to class scope
         self.p = p
         self.ax = ax
 
         ax.set_title(f"Fourier transform of {object.variable_name}")
         ax.set_xlabel("k")
-        ax.set_ylabel("Not quite sure")
+        ax.set_ylabel(f"{object.unit_name}**2/k")
 
         ax.set_ylim(Max*10**(-3),Max*10)
         for i in range(1,10):
@@ -211,7 +211,7 @@ class AnimationEngine:
 
         ax.set_title(f"Fourier transform of {object.variable_name}")
         ax.set_xlabel("k")
-        ax.set_ylabel("Not quite sure")
+        ax.set_ylabel(f"{object.unit_name}**2/k")
 
         ax.set_ylim(Max*10**(-3),Max*10)
         for i in range(1,10):
@@ -309,7 +309,7 @@ class AnimationEngine:
 
         ax.set_title(f"Fourier transform of {object.variable_name}")
         ax.set_xlabel("k")
-        ax.set_ylabel("Not quite sure")
+        ax.set_ylabel(f"{object.unit_name}**2/k")
 
         ax.set_ylim(Max*10**(-3),Max*10)
         for i in range(1,10):
@@ -410,7 +410,7 @@ class AnimationEngine:
 
         ax.set_title(f"Fourier transform of {object.variable_name}")
         ax.set_xlabel("k")
-        ax.set_ylabel("Not quite sure")
+        ax.set_ylabel(f"{object.unit_name}**2/k")
 
         ax.set_ylim(Max*10**(-3),Max*10)
         for i in range(1,10):
