@@ -542,8 +542,8 @@ class AnimationEngine:
     def def_min_max(self):
         object = self.object
         values = []
-        for i in range(object.bulkfile_n):
-            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(i).zfill(7)}.vlsv")   
+        for i in range(object.bulkfile_n - object.start_frame):
+            vlsvobj = pt.vlsvfile.VlsvReader(object.bulkpath + f"bulk.{str(i + object.start_frame).zfill(7)}.vlsv")   
             values.extend(
                 vlsvobj.read_variable(object.variable,operator=f"{object.component if object.component is not None else "pass"}"))
         return min(values), max(values)
