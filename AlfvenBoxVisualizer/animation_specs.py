@@ -10,6 +10,7 @@ translate = {"B_x":("vg_b_vol", "x", 1e-9, "nT"),
                 "J_y":("vg_j", "y", 1e-9, "nA/m**2"),
                 "J_z":("vg_j", "z", 1e-9, "nA/m**2"),
                 "J_x":("vg_j", "x", 1e-9, "nA/m**2"),
+                "J_tot":("vg_j", "magnitude", 1e-9, "nA/m**2"),
                 "v_x":("proton/vg_v", "x", 1e3, "km/s"),
                 "v_y":("proton/vg_v", "y", 1e3, "km/s"),
                 "v_z":("proton/vg_v", "z", 1e3, "km/s"),
@@ -18,13 +19,13 @@ translate = {"B_x":("vg_b_vol", "x", 1e-9, "nT"),
 
 # Defining AnimationSpecs object and checking instructions
 class AnimationSpecs():
-    def __init__(self, animation_type, variable, name, bulkfile_n, start_frame, bulkpath, fourier_spec):
+    def __init__(self, animation_type, variable, name, bulkfile_n, start_frame, bulkpath, fourier_spec, G_field):
         if animation_type not in ["3D", "2D", "fourier"]:
             print("animation_type defined incorrectly")
             print(animation_type, variable, name, bulkfile_n, bulkpath, fourier_spec)
             sys.exit(1)
 
-        if variable not in ["B_y", "B_z", "B_x", "dB_y/dx", "dB_z/dx", "B_tot", "J_x", "J_y", "J_z", "v_y", "v_z", "v_x", "v_tot", "rho"]:
+        if variable not in ["B_y", "B_z", "B_x", "dB_y/dx", "dB_z/dx", "B_tot", "J_x", "J_y", "J_z", "J_tot", "v_y", "v_z", "v_x", "v_tot", "rho"]:
             print("variable defined incorrectly")
             print(animation_type, variable, name, bulkfile_n, bulkpath, fourier_spec)
             sys.exit(1)
@@ -55,6 +56,7 @@ class AnimationSpecs():
 
         self.animation_type = animation_type
         self.variable_name = variable
+        self.G_field = G_field
         self.variable = translate[variable][0]
         self.component = translate[variable][1]
         self.unit = translate[variable][2]

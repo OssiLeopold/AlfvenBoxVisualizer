@@ -8,11 +8,14 @@ import analysator as pt
 import numpy as np
 
 # Set path to simulation bulkfiles
-bulkpath = "/home/rxelmer/Documents/turso/bulks/sim18/"
+bulkpath = "/home/rxelmer/Documents/turso/bulks_local/sim21/"
 
 # Enter number of frames to be animated. Define start frame if you want to start from some point.
-bulkfile_number = 73
+bulkfile_number = 1
 start_frame = 0
+
+# Please enter guide field strength and direction
+G_field = ("z", 1e-8)
 
 # Define what animations are to be produced
 # Has to be in the from of a tuple, e.g: ("<animation type>", "<variable_component>", "<fourier spesific>")
@@ -26,14 +29,10 @@ start_frame = 0
 #                   First number for x slice y-coord and second number for y slice x-coord.
 # fourier_spesific: ("trace_diag") -> for trace PSD for diag directions.
  
-def_beginning = "TurbulenceBoxPlots/sim18_anim/sim18"
+def_beginning = "TurbulenceBoxPlots/sim22_anim/sim22"
 def_end = ".mp4"
 animations = [
-              ("2D", "B_x"),("2D", "B_y"),("2D", "B_z"),("2D", "B_tot"),
-              ("2D", "v_x"),("2D", "v_y"),("2D", "v_z"),("2D", "v_tot"),
-              ("2D", "J_x"),("2D", "J_y"),("2D", "J_z"),
-              ("fourier", "v_x", ("x","0.5")),("fourier", "v_y", ("x","0.5")),("fourier", "v_z", ("x","0.5")),("fourier", "B_x", ("x","0.5")),("fourier", "B_y", ("x","0.5")),("fourier", "B_z", ("x","0.5")),
-              ("fourier", "v_x", ("trace_diag")),("fourier", "v_y", ("trace_diag")),("fourier", "v_z", ("trace_diag")),("fourier", "B_x", ("trace_diag")),("fourier", "B_y", ("trace_diag")),("fourier", "B_z", ("trace_diag"))
+              ("2D", "B_x"),("2D", "B_y"),("2D", "B_z"),("2D", "B_tot")
              ]
 
 """ ("fourier", "v_x", ("x","0.5")),("fourier", "v_y", ("x","0.5")),("fourier", "v_z", ("x","0.5")),("fourier", "B_x", ("x","0.5")),("fourier", "B_y", ("x","0.5")),("fourier", "B_z", ("x","0.5")),
@@ -50,9 +49,9 @@ animations = [
 
 for i, object in enumerate(animations):
     if object[0] == "fourier":
-        animations[i] = AnimationSpecs(object[0], object[1], f"{def_beginning}_{object[1]}_{object[0]}_{object[2][0]}_{def_end}", bulkfile_number, start_frame, bulkpath, object[2])
+        animations[i] = AnimationSpecs(object[0], object[1], f"{def_beginning}_{object[1]}_{object[0]}_{object[2][0]}_{def_end}", bulkfile_number, start_frame, bulkpath, object[2], G_field)
     else:
-        animations[i] = AnimationSpecs(object[0], object[1], f"{def_beginning}_{object[1]}_{object[0]}{def_end}", bulkfile_number, start_frame, bulkpath, "pass")
+        animations[i] = AnimationSpecs(object[0], object[1], f"{def_beginning}_{object[1]}_{object[0]}{def_end}", bulkfile_number, start_frame, bulkpath, "pass", G_field)
 
 
 # Launch a separate process for each AnimationSpecs object

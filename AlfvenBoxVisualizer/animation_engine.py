@@ -464,10 +464,13 @@ class AnimationEngine:
         if abs(self.Min) > abs(self.Max):
             self.Max = -self.Min
         else:
-            self.Min = -self.Max
+            if self.Min > 0:
+                self.Min = 0
+            else:
+                self.Min = -self.Max
 
         self.p = [pt.plot.plot_colormap(
-            vlsvobj = vlsvobj, var = self.object.variable, operator = self.object.component, axes=self.ax, vmin = self.Min, vmax = self.Max)]
+            vlsvobj = vlsvobj, var = self.object.variable, operator = self.object.component, axes=self.ax, vmin = self.Min, vmax = self.Max, lin = "True")]
 
         anim = animation.FuncAnimation(fig, self.update_2D, frames = self.object.bulkfile_n + 1 - self.object.start_frame, interval = 20)
 
@@ -479,8 +482,9 @@ class AnimationEngine:
         self.p.clear()
         # fetch vlsv file
         vlsvobj = pt.vlsvfile.VlsvReader(self.object.bulkpath + f"bulk.{str(frame + self.object.start_frame).zfill(7)}.vlsv")
+
         pt.plot.plot_colormap(
-            vlsvobj = vlsvobj, var = self.object.variable, operator = self.object.component, axes=self.ax, vmin = self.Min, vmax = self.Max, nocb = "No")
+            vlsvobj = vlsvobj, var = self.object.variable, operator = self.object.component, axes=self.ax, vmin = self.Min, vmax = self.Max, nocb = "No", lin = "true")
         return self.p
 
     def animation_3D(self):

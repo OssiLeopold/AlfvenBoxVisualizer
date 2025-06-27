@@ -10,12 +10,12 @@ plt.rcParams['animation.ffmpeg_path'] = "/home/rxelmer/Documents/turso/appl_loca
 
 os.environ['PATH']='/home/rxelmer/Documents/turso/appl_local/tex-basic/texlive/2023/bin/x86_64-linux:'+ os.environ['PATH'] 
 os.environ['PTNOLATEX']='1'
-bulkpath = "/home/rxelmer/Documents/turso/bulks/sim18/"
+bulkpath = "/home/rxelmer/Documents/turso/bulks/sim21/"
 
-fig, axes = plt.subplots(3,3,figsize=(12,12))
+fig, axes = plt.subplots(3,3,figsize=(16,12))
 axes = axes.flatten()
 
-titles = ["delta_l2", "delta_l4", "delta_l6", "delta_l8", "delta_l10", "delta_l12", "delta_l20","delta_l24","delta_l38"]
+titles = ["delta_l11", "delta_l12", "delta_l14", "delta_l17", "delta_l20", "delta_l25", "delta_l33","delta_l50","delta_l75"]
 
 def update(frame):
     # Clear axes for new frame
@@ -36,110 +36,129 @@ def update(frame):
     SD = statistics.stdev(value)
     
     # Create empty arrays for 
-    delta_l2 = []
-    delta_l4 = []
-    delta_l6 = []
-    delta_l8 = []
-    delta_l10 = []
+    delta_l11 = []
     delta_l12 = []
+    delta_l14 = []
+    delta_l17 = []
     delta_l20 = []
-    delta_l24 = []
-    delta_l38 = []
+    delta_l25 = []
+    delta_l33 = []
+    delta_l50 = []
+    delta_l75 = []
 
     L = 100
 
     # Loop through all slices
-    #for i in range(len(value_mesh_x)):
-    value_slice_x = value_mesh_x[50]
-    value_slice_y = value_mesh_y[50]
+    for i in range(L):
+        value_slice_x = value_mesh_x[i]
+        value_slice_y = value_mesh_y[i]
 
-    for j in range(0,L,2):
-        if j + 2 >= L:
-            delta_l2.append((value_slice_x[j+2-L]-value_slice_x[j]-mean)/SD)
-            delta_l2.append((value_slice_y[j+2-L]-value_slice_y[j]-mean)/SD)
-        else:
-            delta_l2.append((value_slice_x[j+2]-value_slice_x[j]-mean)/SD)
-            delta_l2.append((value_slice_y[j+2]-value_slice_y[j]-mean)/SD)
+        for j in range(0,L):
+            if j + 11 >= L:
+                delta_l11.append(value_slice_x[j+11-L]-value_slice_x[j])
+                delta_l11.append(value_slice_y[j+11-L]-value_slice_y[j])
+            else:
+                delta_l11.append(value_slice_x[j+11]-value_slice_x[j])
+                delta_l11.append(value_slice_y[j+11]-value_slice_y[j])
 
-    for j in range(0,L,4):
-        if j + 4 >= L:
-            delta_l4.append((value_slice_x[j+4-L]-value_slice_x[j]-mean)/SD)
-            delta_l4.append((value_slice_y[j+4-L]-value_slice_y[j]-mean)/SD)
-        else:
-            delta_l4.append((value_slice_x[j+4]-value_slice_x[j]-mean)/SD)
-            delta_l4.append((value_slice_y[j+4]-value_slice_y[j]-mean)/SD)
+        for j in range(0,L):
+            if j + 12 >= L:
+                delta_l12.append(value_slice_x[j+12-L]-value_slice_x[j])
+                delta_l12.append(value_slice_y[j+12-L]-value_slice_y[j])
+            else:
+                delta_l12.append(value_slice_x[j+12]-value_slice_x[j])
+                delta_l12.append(value_slice_y[j+12]-value_slice_y[j])
 
-    for j in range(0,L,6):
-        if j + 6 >= L:
-            delta_l6.append((value_slice_x[j+6-L]-value_slice_x[j]-mean)/SD)
-            delta_l6.append((value_slice_y[j+6-L]-value_slice_y[j]-mean)/SD)
-        else:
-            delta_l6.append((value_slice_x[j+6]-value_slice_x[j]-mean)/SD)
-            delta_l6.append((value_slice_y[j+6]-value_slice_y[j]-mean)/SD)
+        for j in range(0,L):
+            if j + 14 >= L:
+                delta_l14.append(value_slice_x[j+14-L]-value_slice_x[j])
+                delta_l14.append(value_slice_y[j+14-L]-value_slice_y[j])
+            else:
+                delta_l14.append(value_slice_x[j+14]-value_slice_x[j])
+                delta_l14.append(value_slice_y[j+14]-value_slice_y[j])
 
-    for j in range(0,L,8):
-        if j + 8 >= L:
-            delta_l8.append((value_slice_x[j+8-L]-value_slice_x[j]-mean)/SD)
-            delta_l8.append((value_slice_y[j+8-L]-value_slice_y[j]-mean)/SD)
-        else:
-            delta_l8.append((value_slice_x[j+8]-value_slice_x[j]-mean)/SD)
-            delta_l8.append((value_slice_y[j+8]-value_slice_y[j]-mean)/SD)
+        for j in range(0,L):
+            if j + 17 >= L:
+                delta_l17.append(value_slice_x[j+17-L]-value_slice_x[j])
+                delta_l17.append(value_slice_y[j+17-L]-value_slice_y[j])
+            else:
+                delta_l17.append(value_slice_x[j+17]-value_slice_x[j])
+                delta_l17.append(value_slice_y[j+17]-value_slice_y[j])
 
-    for j in range(0,L,10):
-        if j + 10 >= L:
-            delta_l10.append((value_slice_x[j+10-L]-value_slice_x[j]-mean)/SD)
-            delta_l10.append((value_slice_y[j+10-L]-value_slice_y[j]-mean)/SD)
-        else:
-            delta_l10.append((value_slice_x[j+10]-value_slice_x[j]-mean)/SD)
-            delta_l10.append((value_slice_y[j+10]-value_slice_y[j]-mean)/SD)
+        for j in range(0,L):
+            if j + 25 >= L:
+                delta_l25.append(value_slice_x[j+25-L]-value_slice_x[j])
+                delta_l25.append(value_slice_y[j+25-L]-value_slice_y[j])
+            else:
+                delta_l25.append(value_slice_x[j+25]-value_slice_x[j])
+                delta_l25.append(value_slice_y[j+25]-value_slice_y[j])
 
-    for j in range(0,L,12):
-        if j + 12 >= L:
-            delta_l12.append((value_slice_x[j+12-L]-value_slice_x[j]-mean)/SD)
-            delta_l12.append((value_slice_y[j+12-L]-value_slice_y[j]-mean)/SD)
-        else:
-            delta_l12.append((value_slice_x[j+12]-value_slice_x[j]-mean)/SD)
-            delta_l12.append((value_slice_y[j+12]-value_slice_y[j]-mean)/SD)
+        for j in range(0,L):
+            if j + 50 >= L:
+                delta_l50.append(value_slice_x[j+50-L]-value_slice_x[j])
+                delta_l50.append(value_slice_y[j+50-L]-value_slice_y[j])
+            else:
+                delta_l50.append(value_slice_x[j+50]-value_slice_x[j])
+                delta_l50.append(value_slice_y[j+50]-value_slice_y[j])
 
-    for j in range(0,L,20):
-        if j + 20 >= L:
-            delta_l20.append((value_slice_x[j+20-L]-value_slice_x[j]-mean)/SD)
-            delta_l20.append((value_slice_y[j+20-L]-value_slice_y[j]-mean)/SD)
-        else:
-            delta_l20.append((value_slice_x[j+20]-value_slice_x[j]-mean)/SD)
-            delta_l20.append((value_slice_y[j+20]-value_slice_y[j]-mean)/SD)
+        for j in range(0,L):
+            if j + 75 >= L:
+                delta_l75.append(value_slice_x[j+75-L]-value_slice_x[j])
+                delta_l75.append(value_slice_y[j+75-L]-value_slice_y[j])
+            else:
+                delta_l75.append(value_slice_x[j+75]-value_slice_x[j])
+                delta_l75.append(value_slice_y[j+75]-value_slice_y[j])
 
-    for j in range(0,L,24):
-        if j + 24 >= L:
-            delta_l24.append((value_slice_x[j+24-L]-value_slice_x[j]-mean)/SD)
-            delta_l24.append((value_slice_y[j+24-L]-value_slice_y[j]-mean)/SD)
-        else:
-            delta_l24.append((value_slice_x[j+24]-value_slice_x[j]-mean)/SD)
-            delta_l24.append((value_slice_y[j+24]-value_slice_y[j]-mean)/SD)
+        for j in range(0,L):
+            if j + 20 >= L:
+                delta_l20.append(value_slice_x[j+20-L]-value_slice_x[j])
+                delta_l20.append(value_slice_y[j+20-L]-value_slice_y[j])
+            else:
+                delta_l20.append(value_slice_x[j+20]-value_slice_x[j])
+                delta_l20.append(value_slice_y[j+20]-value_slice_y[j])
 
-    for j in range(0,L,38):
-        if j + 38 >= L:
-            delta_l38.append((value_slice_x[j+38-L]-value_slice_x[j]-mean)/SD)
-            delta_l38.append((value_slice_y[j+38-L]-value_slice_y[j]-mean)/SD)
-        else:
-            delta_l38.append((value_slice_x[j+38]-value_slice_x[j]-mean)/SD)
-            delta_l38.append((value_slice_y[j+38]-value_slice_y[j]-mean)/SD)
+        for j in range(0,L):
+            if j + 33 >= L:
+                delta_l33.append(value_slice_x[j+33-L]-value_slice_x[j])
+                delta_l33.append(value_slice_y[j+33-L]-value_slice_y[j])
+            else:
+                delta_l33.append(value_slice_x[j+33]-value_slice_x[j])
+                delta_l33.append(value_slice_y[j+33]-value_slice_y[j])
 
 
-    deltas = [delta_l2,delta_l4,delta_l6,delta_l8,delta_l10,delta_l12,delta_l20,delta_l24,delta_l38]
+    deltas = [delta_l11,delta_l12,delta_l14,delta_l17,delta_l20,delta_l25,delta_l33,delta_l50,delta_l75]
+    deltas_np = []
+    
+    for delta in deltas:
+        deltas_np.append(np.array(delta))
+
+    gaussians = []
+
+    """ for i in range(len(deltas_np)):
+        mean = statistics.mean(deltas_np[i])
+        SD = statistics.stdev(deltas_np[i])
+        gaussians.append((1 / (SD * np.sqrt(2*np.pi))) * np.exp(-(1/2)*(deltas_np[i]-mean)**2 / SD**2))
+        deltas_np[i] = (deltas_np[i] - mean) / SD """
 
     gaussian = np.random.normal(mean, SD, 10000)/SD
 
     for i, ax in enumerate(axes):
-        sns.kdeplot(gaussian, ls = ":",ax=ax)
-        ax.hist(deltas[i], bins=10, density=True)
+        mean = statistics.mean(deltas_np[i])
+        SD = statistics.stdev(deltas_np[i])
+        deltas_np[i] = (deltas_np[i] - mean) / SD
+
+        ax.hist(deltas_np[i], bins=100, density=True)
+        
+        gaussian = np.random.normal(mean, SD, 10000)/SD
+        sns.kdeplot(gaussian, ax=ax, ls = ":")
+
         ax.set_title(titles[i])
         ax.set_xlim(-6,6)
         ax.set_yscale("log")
         ax.set_ylim(1e-3,1)
 
-anim = animation.FuncAnimation(fig, update, frames = 100, interval = 20)
+anim = animation.FuncAnimation(fig, update, frames = 50, interval = 20)
 
 writer = FFMpegWriter(fps=5)
-anim.save("struct_By_sim18_hist_one_xy_10bins_density_log_gauss_jump.mp4", writer=writer)
+anim.save("struct_By_sim20_big_boy_100bins.mp4", writer=writer)
 plt.close()
